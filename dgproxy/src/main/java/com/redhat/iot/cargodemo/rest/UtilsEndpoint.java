@@ -76,8 +76,6 @@ public class UtilsEndpoint {
         }
         for (int i = 0; i < MAX; i++) {
 
-
-
             Vehicle v = new Vehicle("" + Math.random(), "Desc for Vehicle " + i);
             v.setOrigin(facilitiesCache.get("Facility " + ((int) (Math.floor(Math.random() * MAX)))));
             v.setDestination(facilitiesCache.get("Facility " + ((int) (Math.floor(Math.random() * MAX)))));
@@ -88,7 +86,9 @@ public class UtilsEndpoint {
             vehicleTelemetry.add(new Telemetry("days", 365, 0.0, "Days Since Tune-up", "Maint"));
             v.setTelemetry(vehicleTelemetry);
             vehiclesCache.put("Vehicle " + i, v);
+        }
 
+        for (int i = 0; i < MAX; i++) {
             List<Facility> route = new ArrayList<Facility>();
             for (int j = 0; j < 4; j++) {
                 route.add(facilitiesCache.get("Facility " + ((int) (Math.floor(Math.random() * MAX)))));
