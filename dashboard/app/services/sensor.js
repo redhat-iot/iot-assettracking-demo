@@ -2,7 +2,8 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$q', 'APP_CONFIG', 'Notifications', function ($http, $q, APP_CONFIG, Notifications) {
+    .factory('SensorData', ['$http', '$location', '$q', 'APP_CONFIG', 'Notifications',
+        function ($http, $location, $q, APP_CONFIG, Notifications) {
         var factory = {},
             client = null,
             msgproto = null,
@@ -62,7 +63,9 @@ angular.module('app')
         }
 
         function connectClient() {
-            client = new Paho.MQTT.Client(APP_CONFIG.BROKER_WEBSOCKET_HOSTNAME, Number(APP_CONFIG.BROKER_WEBSOCKET_PORT), "demo-client-id");
+
+            var brokerHostname = APP_CONFIG.BROKER_WEBSOCKET_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1");
+            client = new Paho.MQTT.Client(brokerHostname, Number(APP_CONFIG.BROKER_WEBSOCKET_PORT), "demo-client-id");
 
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
