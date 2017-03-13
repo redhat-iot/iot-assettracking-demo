@@ -1,0 +1,11 @@
+target/
+.DS_Store
+*.classpath
+*.settings
+*.tern*
+.idea
+*.iml
+.security/
+*.jar
+src/main/webapp/vendor
+app.properties

@@ -1,0 +1,20 @@
+<div class="p-t-10 container-fluid">
+
+    <div class="row">
+        <div class="col-md-12">
+                <img class="img-responsive center-block" ng-src="/app/imgs/truck-{{truckImageType}}.png" alt="Truck" />
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div ng-repeat="telemetry in selectedVehicle.telemetry track by $index">
+            <div class="col-md-3">
+                <div class="center-block" pf-donut-pct-chart config="config[telemetry.name]" data="data[telemetry.name]" center-label="used" chart-height="150">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

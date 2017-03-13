@@ -1,0 +1,12 @@
+<div>
+
+    <div>
+        <div ng-repeat="telemetry in selectedPkg.telemetry track by $index">
+
+            <div pf-trends-chart config="config[telemetry.name]" chart-data="data[telemetry.name]">
+            </div>
+
+        </div>
+    </div>
+</div>
+

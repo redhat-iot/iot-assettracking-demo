@@ -1,0 +1,86 @@
+#chart_container {
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 10px;
+}
+
+#historylink {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 25%;
+    text-align: center;
+}
+
+#chart {
+    position: relative;
+    left: 10%;
+    width: 60%;
+}
+
+#y_axis {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10%;
+}
+
+.detail_swatch {
+    float: right;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 4px 0 0
+}
+
+#datalabeldiv {
+    position: absolute;
+    top: 0;
+    left: 75%;
+    width: 25%;
+}
+
+#datalabel {
+    font-size: 3em;
+}
+
+.line {
+    fill: none;
+    stroke: url(#line-gradient);
+    stroke-width: 2px;
+}
+
+.custom-marker {
+    /*font-size: 1.5em;*/
+    padding: 10px;
+    background: #fff;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border: #7F7F7F solid 1px;
+}
+
+.p-a-3 {
+    padding: 3px;
+}
+
+.p-t-10 {
+    padding-top: 10px;
+}
+
+.panel-body {
+    padding: 15px;
+}
+
+.modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
+.row-eq-height {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display:         flex;
+}
+

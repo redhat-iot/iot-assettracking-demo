@@ -1,0 +1,23 @@
+{
+  "author": "Red Hat",
+  "name": "iot-cargo-demo",
+  "repository": "redhat-iot/iot-cargo-demo",
+  "version": "2.0.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "description": "Red Hat IoT Dashboard Demo",
+  "homepage": "https://github.com/redhat-iot",
+  "dependencies": {
+    "express": "^4.13.4",
+    "request": "^2.74.0"
+  },
+  "devDependencies": {
+    "bower": ">=1.7.9"
+  },
+  "engines": {
+    "node": ">=0.10.10"
+  },
+  "scripts": {
+    "postinstall": "node_modules/.bin/bower install"
+  }
+}

@@ -1,0 +1,41 @@
+<div id="vehicles">
+
+    <div ng-if="vehicles.length <= 0">
+        No vehicles found. Perhaps you need to <a href="#" ng-click="resetAll()">initialize the system</a>?
+    </div>
+
+    <div ng-if="vehicles.length > 0" class="p-a-3">
+        <input ng-model="query" type="text" placeholder="Find..." autofocus>
+    </div>
+
+    <div ng-if="vehicles.length > 0" style="overflow: auto;">
+
+        <table class="table table-striped table-bordered table-hover" id="myTable">
+            <thead>
+            <tr>
+                <th>Vehicle ID</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>ETA</th>
+                <th>Alerts</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr ng-class="{ active: isSelected(vehicle)}" ng-click="selectVehicle(vehicle);"
+                ng-repeat="vehicle in vehicles | filter:query track by $index">
+                <td data-toggle="tooltip" data-placement="right" title="{{vehicle.vin}}">{{vehicle.vin}}</td>
+                <td>{{vehicle.origin.address}}</td>
+                <td>{{vehicle.destination.address}}</td>
+                <td>BLANK</td>
+                <td>BLANK</td>
+                <td>BLANK</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+

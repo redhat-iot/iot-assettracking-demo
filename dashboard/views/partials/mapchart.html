@@ -1,0 +1,17 @@
+<div map-lazy-load="https://maps.google.com/maps/api/js" map-lazy-load-params="{{mapsUrl}}" id="shipmentmap">
+
+            <ng-map zoom="12" center="San Francisco, CA" pan-control="false"
+                    zoom-control="false" scale-control="false" street-view-control="false">
+                <directions
+                        draggable="true"
+                        travel-mode="DRIVING"
+                        origin=""
+                        destination="">
+                </directions>
+
+                <marker id="cp" position="San Francisco, CA" animation="Animation.DROP" centered="true"></marker>
+
+
+            </ng-map>
+
+    </div>
