@@ -1,3 +1,6 @@
+###
+### BEGIN OpenShift Template items from Kapua dev-tools
+###
 apiVersion: v1
 kind: Template
 labels:
@@ -10,57 +13,6 @@ metadata:
   name: summit2017demo
 
 objects:
-
-# Image streams
-
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: kapua-sql
-    labels:
-      app: kapua-sql
-  spec:
-    tags:
-    - name: latest
-      from:
-        kind: DockerImage
-        name: ${DOCKER_ACCOUNT}/kapua-sql:${IMAGE_VERSION}
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: kapua-broker
-    labels:
-      app: kapua-broker
-  spec:
-    tags:
-    - name: latest
-      from:
-        kind: DockerImage
-        name: ${DOCKER_ACCOUNT}/kapua-broker:${IMAGE_VERSION}
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: kapua-console
-    labels:
-      app: kapua-console
-  spec:
-    tags:
-    - name: latest
-      from:
-        kind: DockerImage
-        name: ${DOCKER_ACCOUNT}/kapua-console:${IMAGE_VERSION}
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    name: kapua-api
-    labels:
-      app: kapua-api
-  spec:
-    tags:
-    - name: latest
-      from:
-        kind: DockerImage
-        name: ${DOCKER_ACCOUNT}/kapua-api:${IMAGE_VERSION}
 
 # Deployment configs
 
@@ -135,7 +87,7 @@ objects:
         containers:
         - env:
           - name: ACTIVEMQ_OPTS
-            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dcommons.db.schema=
+            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT
           image: ${DOCKER_ACCOUNT}/kapua-broker:${IMAGE_VERSION}
           imagePullPolicy: Always
           name: kapua-broker
@@ -181,9 +133,9 @@ objects:
       spec:
         containers:
         - env:
-          - name: CATALINA_OPTS
-            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dcommons.db.schema= -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
-          image: ${DOCKER_ACCOUNT}/kapua-console:${IMAGE_VERSION}
+          - name: JAVA_OPTS
+            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
+          image: ${DOCKER_ACCOUNT}/kapua-console-jetty:${IMAGE_VERSION}
           imagePullPolicy: Always
           name: kapua-console
           ports:
@@ -191,7 +143,7 @@ objects:
             protocol: TCP
           readinessProbe:
             httpGet:
-              path: /console
+              path: /
               port: 8080
             initialDelaySeconds: 15
             timeoutSeconds: 5
@@ -220,9 +172,9 @@ objects:
       spec:
         containers:
         - env:
-          - name: CATALINA_OPTS
-            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dcommons.db.schema= -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
-          image: ${DOCKER_ACCOUNT}/kapua-api:${IMAGE_VERSION}
+          - name: JAVA_OPTS
+            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
+          image: ${DOCKER_ACCOUNT}/kapua-api-jetty:${IMAGE_VERSION}
           imagePullPolicy: Always
           name: kapua-console
           ports:
@@ -230,7 +182,7 @@ objects:
             protocol: TCP
           readinessProbe:
             httpGet:
-              path: /api
+              path: /
               port: 8080
             initialDelaySeconds: 15
             timeoutSeconds: 5
@@ -239,9 +191,9 @@ objects:
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         terminationGracePeriodSeconds: 30
-        
+
 # Services
-        
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -355,6 +307,10 @@ objects:
       name: kapua-api
     port:
       targetPort: http
+
+###
+### END OpenShift Template items from Kapua dev-tools
+###
 
 # UI and JDG
 
