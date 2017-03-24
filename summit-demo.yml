@@ -1,18 +1,133 @@
-###
-### BEGIN OpenShift Template items from Kapua dev-tools
-###
 apiVersion: v1
 kind: Template
-labels:
-  demo: summit2017demo
 metadata:
   annotations:
-    description: Red Hat Summit 2017 IoT application template
-    iconClass: icon-jboss
+    description: Red Hat IoT Demo Application Template
+    iconClass: icon-shadowman
     tags: jboss,iot,kapua,kura,eclipse
-  name: summit2017demo
+  name: iot-demo
+
+parameters:
+- name:           IMAGE_VERSION 
+  description:      The version of the image to use
+  value:            latest
+- name:           DOCKER_ACCOUNT
+  description:      The docker hub account name to pull from
+  value:            eclipse
+- name:           JOLOKIA_PASSWORD
+  description:      The password used for the Jolokia endpoint authentication
+  generate:         expression
+  from:             '[a-zA-Z0-9]{15}'
+  required:         true
+- name:           JOLOKIA_USER
+  description:      The username used for the Jolokia endpoint authentication
+  value:            jolokia
+- name:           ELASTIC_SEARCH_MEMORY
+  descrption:       The minimum and maximun Java heap space for Elasticsearch
+  value:            256m
+- description: Maven mirror url. If nexus is deployed locally, use nexus url (e.g. http://nexus.ci:8081/content/groups/public/)
+  displayName: Maven mirror url
+  name: MAVEN_MIRROR_URL
+  required: false
+- description: MQ cluster password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: MQ_CLUSTER_PASSWORD
+  required: true
+- description: JGroups cluster password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: JGROUPS_CLUSTER_PASSWORD
+  required: true
+- description: Git source URI for application
+  name: GIT_URI
+  required: true
+  value: https://github.com/redhat-iot/summit2017
+- description: Git branch/tag reference
+  name: GIT_REF
+  value: master
+- description: MQ Broker username
+  name: BROKER_USERNAME
+  value: "demo-gw"
+  required: true
+- description: MQ Broker password
+  name: BROKER_PASSWORD
+  value: "RedHat123!@#"
+  required: true
+- description: OpenShift load-balanced MQ Broker service name
+  name: BROKER_WS_NAME
+  value: "broker"
+  required: true
+- description: Name of datastore proxy service
+  name: DATASTORE_PROXY_SERVICE
+  value: "datastore-proxy"
+  required: true
+- description: API Key for Google Maps
+  name: GOOGLE_MAPS_API_KEY
+  value: ""
+  required: false
+- description: Datastore username
+  name: DATASTORE_USERNAME
+  value: "rhiot"
+  required: true
+- description: Datastore password
+  name: DATASTORE_PASSWORD
+  value: "redhatiot1!"
+  required: true
+- description: Datastore service hostname
+  name: DATASTORE_HOST
+  value: "datastore-hotrod"
+  required: true
+- description: Datastore port
+  name: DATASTORE_PORT
+  value: "11333"
+  required: true
+- description: Datastore password
+  name: DATASTORE_CACHE
+  value: "customer,facility,operator,shipment,vehicle"
+  required: true
+- name: IMAGE_VERSION
+  description: The version of the image to use
+  required: true
+  value: latest
+#- name: DOCKER_ACCOUNT
+#  description: The docker hub account name to pull from
+#  required: true
+#  value: redhatiot
+
+labels:
+  demo: summit2017
 
 objects:
+
+# Config Maps (Hawkular)
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: hawkular-openshift-agent-kapua
+    labels:
+      name: hawkular-openshift-agent-kapua
+      hawkular-openshift-agent: jolokia-kapua
+  data:
+    hawkular-openshift-agent: |
+      endpoints:
+      - type: jolokia
+        protocol: https
+        port: 8778
+        path: /jolokia/
+        collection_interval: 15s
+        credentials:
+          username: ${JOLOKIA_USER}
+          password: ${JOLOKIA_PASSWORD}
+        tls:
+          skip_certificate_validation: true
+        metrics:
+        - name: java.lang:type=Memory#HeapMemoryUsage#used
+          id: java_memory_heap_used
+          type: gauge
+          description: Heap Memory Used
+          units: B
 
 # Deployment configs
 
@@ -35,12 +150,18 @@ objects:
         labels:
           app: sql
           deploymentconfig: sql
+          hawkular-openshift-agent: jolokia-kapua
       spec:
         containers:
-        - image: ${DOCKER_ACCOUNT}/kapua-sql:${IMAGE_VERSION}
+        - env:
+          - name: H2_OPTS
+            value: -javaagent:/jolokia-jvm-agent.jar=port=8778,protocol=https,caCert=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt,clientPrincipal=cn=system:master-proxy,useSslClientAuthentication=true,extraClientCheck=true,host=0.0.0.0,discoveryEnabled=false,user=${JOLOKIA_USER},password=${JOLOKIA_PASSWORD}
+          image: ${DOCKER_ACCOUNT}/kapua-sql:${IMAGE_VERSION}
           imagePullPolicy: Always
           name: sql
           ports:
+          - containerPort: 8778 
+            name: jolokia
           - containerPort: 3306
             protocol: TCP
           - containerPort: 8181
@@ -62,6 +183,10 @@ objects:
         volumes:
         - emptyDir: {}
           name: sql-data
+        - name: hawkular-openshift-agent
+          configMap:
+            name: hawkular-openshift-agent-kapua
+
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -83,15 +208,18 @@ objects:
         labels:
           app: kapua-broker
           deploymentconfig: kapua-broker
+          hawkular-openshift-agent: jolokia-kapua
       spec:
         containers:
         - env:
           - name: ACTIVEMQ_OPTS
-            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT
+            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Ddatastore.elasticsearch.nodes=$ELASTICSEARCH_PORT_9200_TCP_ADDR -javaagent:/jolokia-jvm-agent.jar=port=8778,protocol=https,caCert=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt,clientPrincipal=cn=system:master-proxy,useSslClientAuthentication=true,extraClientCheck=true,host=0.0.0.0,discoveryEnabled=false,user=${JOLOKIA_USER},password=${JOLOKIA_PASSWORD}
           image: ${DOCKER_ACCOUNT}/kapua-broker:${IMAGE_VERSION}
           imagePullPolicy: Always
           name: kapua-broker
           ports:
+          - containerPort: 8778 
+            name: jolokia
           - containerPort: 1883
             protocol: TCP
           - containerPort: 61614
@@ -113,6 +241,7 @@ objects:
         volumes:
         - emptyDir: {}
           name: kapua-broker-volume-1
+
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -130,15 +259,18 @@ objects:
         labels:
           app: kapua-console
           deploymentconfig: kapua-console
+          hawkular-openshift-agent: jolokia-kapua
       spec:
         containers:
         - env:
           - name: JAVA_OPTS
-            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
+            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST -javaagent:/jolokia-jvm-agent.jar=port=8778,protocol=https,caCert=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt,clientPrincipal=cn=system:master-proxy,useSslClientAuthentication=true,extraClientCheck=true,host=0.0.0.0,discoveryEnabled=false,user=${JOLOKIA_USER},password=${JOLOKIA_PASSWORD}
           image: ${DOCKER_ACCOUNT}/kapua-console-jetty:${IMAGE_VERSION}
           imagePullPolicy: Always
           name: kapua-console
           ports:
+          - containerPort: 8778 
+            name: jolokia
           - containerPort: 8080
             protocol: TCP
           readinessProbe:
@@ -152,12 +284,18 @@ objects:
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         terminationGracePeriodSeconds: 30
+        volumes:
+        - name: hawkular-openshift-agent
+          configMap:
+            name: hawkular-openshift-agent-kapua
+
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     generation: 1
     labels:
       app: kapua-api
+      hawkular-openshift-agent: jolokia-kapua
     name: kapua-api
   spec:
     replicas: 1
@@ -169,15 +307,18 @@ objects:
         labels:
           app: kapua-api
           deploymentconfig: kapua-api
+          hawkular-openshift-agent: jolokia-kapua
       spec:
         containers:
         - env:
           - name: JAVA_OPTS
-            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
+            value: -Dcommons.db.connection.host=$SQL_SERVICE_HOST -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST -javaagent:/jolokia-jvm-agent.jar=port=8778,protocol=https,caCert=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt,clientPrincipal=cn=system:master-proxy,useSslClientAuthentication=true,extraClientCheck=true,host=0.0.0.0,discoveryEnabled=false,user=${JOLOKIA_USER},password=${JOLOKIA_PASSWORD}
           image: ${DOCKER_ACCOUNT}/kapua-api-jetty:${IMAGE_VERSION}
           imagePullPolicy: Always
           name: kapua-console
           ports:
+          - containerPort: 8778 
+            name: jolokia
           - containerPort: 8080
             protocol: TCP
           readinessProbe:
@@ -191,9 +332,66 @@ objects:
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         terminationGracePeriodSeconds: 30
+        volumes:
+        - name: hawkular-openshift-agent
+          configMap:
+            name: hawkular-openshift-agent-kapua
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    generation: 1
+    labels:
+      app: elasticsearch
+      hawkular-openshift-agent: jolokia-kapua
+    name: elasticsearch
+  spec:
+    replicas: 1
+    selector:
+      app: elasticsearch
+      deploymentconfig: elasticsearch
+    template:
+      metadata:
+        labels:
+          app: elasticsearch
+          deploymentconfig: elasticsearch
+          hawkular-openshift-agent: jolokia-kapua
+      spec:
+        containers:
+        - env:
+          - name: ES_HEAP_SIZE
+            value: ${ELASTIC_SEARCH_MEMORY}
+          - name: ES_JAVA_OPTS
+            value: -Des.cluster.name=kapua-datastore
+          image: elasticsearch:2.4
+          imagePullPolicy: Always
+          name: elasticsearch
+          ports:
+          - containerPort: 9200
+          - containerPort: 9300
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9200
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+            periodSeconds: 10
+          volumeMounts:
+          - mountPath: /usr/share/elasticsearch/data
+            name: elasticsearch-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: hawkular-openshift-agent
+          configMap:
+            name: hawkular-openshift-agent-kapua
+        - name: elasticsearch-data
+          emptyDir: {}
 
 # Services
-
+        
 - apiVersion: v1
   kind: Service
   metadata:
@@ -220,7 +418,7 @@ objects:
     labels:
       app: kapua-broker
     annotations:
-      service.alpha.openshift.io/dependencies: '[{"name": "sql", "kind": "Service"}]'
+      service.alpha.openshift.io/dependencies: '[{"name": "sql", "kind": "Service"}, {"name": "elasticsearch", "kind": "Service"}]'
   spec:
     ports:
     - name: mqtt-tcp
@@ -268,6 +466,25 @@ objects:
     selector:
       app: kapua-api
       deploymentconfig: kapua-api
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: elasticsearch
+    labels:
+      app: elasticsearch
+  spec:
+    ports:
+    - name: http
+      protocol: TCP
+      port: 9200
+      targetPort: 9200
+    - name: transport
+      protocol: TCP
+      port: 9300
+      targetPort: 9300
+    selector:
+      app: elasticsearch
+      deploymentconfig: elasticsearch
 
 # Routes
 
@@ -305,6 +522,18 @@ objects:
     to:
       kind: Service
       name: kapua-api
+    port:
+      targetPort: http
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: search
+    labels:
+      app: elasticsearch
+  spec:
+    to:
+      kind: Service
+      name: elasticsearch
     port:
       targetPort: http
 
@@ -388,7 +617,7 @@ objects:
           value: ${MAVEN_MIRROR_URL}
         from:
           kind: ImageStreamTag
-          name: jboss-eap70-openshift:1.4
+          name: wildfly:10.1
           namespace: openshift
       type: Source
     triggers:
@@ -738,76 +967,3 @@ objects:
       kind: Service
       name: datastore-proxy
 
-#
-# Template Parameters
-#
-parameters:
-- description: Maven mirror url. If nexus is deployed locally, use nexus url (e.g. http://nexus.ci:8081/content/groups/public/)
-  displayName: Maven mirror url
-  name: MAVEN_MIRROR_URL
-  required: false
-- description: MQ cluster password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: MQ_CLUSTER_PASSWORD
-  required: true
-- description: JGroups cluster password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: JGROUPS_CLUSTER_PASSWORD
-  required: true
-- description: Git source URI for application
-  name: GIT_URI
-  required: true
-  value: https://github.com/redhat-iot/summit2017
-- description: Git branch/tag reference
-  name: GIT_REF
-  value: master
-- description: MQ Broker username
-  name: BROKER_USERNAME
-  value: "demo-gw"
-  required: true
-- description: MQ Broker password
-  name: BROKER_PASSWORD
-  value: "RedHat123!@#"
-  required: true
-- description: OpenShift load-balanced MQ Broker service name
-  name: BROKER_WS_NAME
-  value: "broker"
-  required: true
-- description: Name of datastore proxy service
-  name: DATASTORE_PROXY_SERVICE
-  value: "datastore-proxy"
-  required: true
-- description: API Key for Google Maps
-  name: GOOGLE_MAPS_API_KEY
-  value: ""
-  required: false
-- description: Datastore username
-  name: DATASTORE_USERNAME
-  value: "rhiot"
-  required: true
-- description: Datastore password
-  name: DATASTORE_PASSWORD
-  value: "redhatiot1!"
-  required: true
-- description: Datastore service hostname
-  name: DATASTORE_HOST
-  value: "datastore-hotrod"
-  required: true
-- description: Datastore port
-  name: DATASTORE_PORT
-  value: "11333"
-  required: true
-- description: Datastore password
-  name: DATASTORE_CACHE
-  value: "customer,facility,operator,shipment,vehicle"
-  required: true
-- name: IMAGE_VERSION
-  description: The version of the image to use
-  required: true
-  value: latest
-- name: DOCKER_ACCOUNT
-  description: The docker hub account name to pull from
-  required: true
-  value: redhatiot
