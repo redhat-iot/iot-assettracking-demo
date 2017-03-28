@@ -44,7 +44,7 @@ oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -
 You can monitor the build with `oc status` or watch the deployments using the OpenShift web console.
 
 Once everything is up and running, you can access the demo using the URL of the `dashboard` route,
-for example `http://dashboard-myproject.domain`
+for example `http://dashboard-redhat-iot.domain`
 
 Add template to "Add to project"
 --------------------------------
