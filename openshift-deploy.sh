@@ -14,7 +14,7 @@ set -e
 
 . openshift-common.sh
 
- : OPENSHIFT_PROJECT_NAME=${OPENSHIFT_PROJECT_NAME:=eclipse-kapua}
+ : OPENSHIFT_PROJECT_NAME=${OPENSHIFT_PROJECT_NAME:=redhat-iot}
 
 # print error and exit when necessary
 
@@ -27,5 +27,5 @@ $OC describe "project/$OPENSHIFT_PROJECT_NAME" &>/dev/null || die "Project '$OPE
 ### Create Kapua from template
 
 echo Creating Kapua from template ...
-$OC new-app -n "$OPENSHIFT_PROJECT_NAME" -f summit-demo.yml # -p "DOCKER_ACCOUNT=$DOCKER_ACCOUNT" -p "GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY"
+$OC new-app -n "$OPENSHIFT_PROJECT_NAME" -f iot-demo.yml # -p "DOCKER_ACCOUNT=$DOCKER_ACCOUNT" -p "GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY"
 echo Creating Kapua from template ... done!

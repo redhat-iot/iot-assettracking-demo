@@ -35,15 +35,23 @@ git clone https://github.com/redhat-iot/summit2017
 
 3. Issue the following commands to create a new OpenShift project and deploy the demo components:
 ```
-oc new-project myproject
+oc new-project redhat-iot --display-name="Red Hat IoT Demo"
 oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -n $(oc project -q)
-oc process -f openshift-template.yaml | oc create -f -
+./openshift-deploy.sh
 ```
 
 You can monitor the build with `oc status` or watch the deployments using the OpenShift web console.
 
 Once everything is up and running, you can access the demo using the URL of the `dashboard` route,
 for example `http://dashboard-myproject.domain`
+
+Add template to "Add to project"
+--------------------------------
+The following command will add the template and the options to the "Add to project" screen in the 
+"Other" section. The template will deploy with defaults the same as it does using the scripts above.
+```
+oc create -f iot-demo.yml
+```
 
 Options
 -------
@@ -60,3 +68,11 @@ oc process -f openshift-template.yaml OPTION1=value OPTION2=value | oc create -f
 * `DOCKER_ACCOUNT` - Name of docker account to use when pulling Kapua (default: `redhatiot`)
 
 There are other options in the template that can be overridden if you know what you are doing!
+
+Uninstalling and cleaning up project
+------------------------------------
+```
+oc delete all --all -n redhat-iot && oc delete configmap hawkular-openshift-agent-kapua
+```
+This will delete everything but the project "Red Hat IoT". This is suitable for testing new scripts, template,
+etc.
