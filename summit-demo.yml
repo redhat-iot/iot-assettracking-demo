@@ -13,7 +13,7 @@ parameters:
   value:            latest
 - name:           DOCKER_ACCOUNT
   description:      The docker hub account name to pull from
-  value:            eclipse
+  value:            redhatiot
 - name:           JOLOKIA_PASSWORD
   description:      The password used for the Jolokia endpoint authentication
   generate:         expression
@@ -64,7 +64,7 @@ parameters:
   required: true
 - description: API Key for Google Maps
   name: GOOGLE_MAPS_API_KEY
-  value: ""
+  value: "AIzaSyDpDtvyzzdXDYk5nt6CuOtjxmvBvwGq5D4"
   required: false
 - description: Datastore username
   name: DATASTORE_USERNAME
