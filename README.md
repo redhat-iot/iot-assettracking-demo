@@ -31,6 +31,7 @@ Follow these steps to build and run the demo:
 2. Clone this repo
 ```
 git clone https://github.com/redhat-iot/summit2017
+cd summit2017
 ```
 
 3. Issue the following commands to create a new OpenShift project and deploy the demo components:
