@@ -31,6 +31,13 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
         </license>
     </licenses>
+    <repositories>
+        <repository>
+            <id>redhat-ga</id>
+            <name>Red Hat GA Repo</name>
+            <url>https://maven.repository.redhat.com/ga/</url>
+        </repository>
+    </repositories>
 
     <properties>
         <!-- Explicitly declaring the source encoding eliminates the following message: -->
