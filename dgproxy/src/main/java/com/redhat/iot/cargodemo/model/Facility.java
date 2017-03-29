@@ -8,6 +8,24 @@ public class Facility implements Serializable {
     private String name;
     private String address;
     private LatLng location;
+    private double utilization;
+    private double size;
+
+    public double getSize() {
+        return size;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
+    }
+
+    public double getUtilization() {
+        return utilization;
+    }
+
+    public void setUtilization(double utilization) {
+        this.utilization = utilization;
+    }
 
     public String getName() {
         return name;
@@ -33,9 +51,10 @@ public class Facility implements Serializable {
         this.location = location;
     }
 
-    public Facility(String name, String address, LatLng location) {
+    public Facility(String name, String address, LatLng location, double size) {
         this.name = name;
         this.address = address;
         this.location = location;
+        this.size = size;
     }
 }

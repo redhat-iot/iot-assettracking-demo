@@ -6,13 +6,26 @@ import java.util.List;
 
 @XmlRootElement(name="vehicle")
 public class Vehicle implements Serializable {
+    public enum Status {
+      OK, WARNING, ERROR
+    }
+
     private String vin;
     private String desc;
     private List<Telemetry> telemetry;
     private Facility origin;
-
-
     private Facility destination;
+    private Status status;
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+
     public List<Telemetry> getTelemetry() {
         return telemetry;
     }

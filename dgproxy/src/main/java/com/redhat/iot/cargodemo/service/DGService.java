@@ -31,6 +31,7 @@ public class DGService {
 
     public DGService() {
 
+
         String host = System.getenv("DATASTORE_HOST");
         if (host == null) {
             host = "localhost";

@@ -1,0 +1,33 @@
+<div>
+
+
+    <div style="float: right;" class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+            {{timeFrame}}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('month');">Last Month</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('year');">Last Year</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('all');">Beginning of Time</a></li>
+        </ul>
+    </div>
+
+    <h2>Business Trends</h2>
+
+    <ul class="nav nav-tabs nav-tabs-pf">
+        <li class="active"><a ng-click="setData('fuel');">Fuel Efficiency</a></li>
+        <li><a ng-click="setData('value');">Value Under Transport</a></li>
+        <li><a ng-click="setData('timeperf');">On-Time Performance</a></li>
+        <li><a ng-click="setData('custsat');">Customer Satisfaction</a></li>
+    </ul>
+
+    <div pf-c3-chart id="chartId" config="chartConfig" get-chart-callback="getChart"></div>
+
+
+</div>
+
+
+
+
+

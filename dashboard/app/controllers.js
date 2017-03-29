@@ -14,6 +14,303 @@ angular.module('app')
         }
     })
 
+    .controller("ExecHomeController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData',
+            function ($scope, $http, $filter, Notifications, SensorData) {
+
+
+            }])
+
+    .controller("ExecFacilityUtilizationController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+
+                $scope.facilities = Reports.getFacilities();
+
+                $scope.config = {
+                    units: 'sq. ft.'
+                };
+
+                $scope.donutConfig = {
+                    chartId: 'chart-util',
+                    thresholds: {'warning': '60'}
+                };
+
+                $scope.sparklineConfig = {
+                    chartId: 'chart-spark',
+                    tooltipType: 'percentage',
+                    units: 'sq. ft.'
+                };
+
+                $scope.centerLabel = "used";
+                $scope.custChartHeight = 60;
+                $scope.custShowXAxis = false;
+                $scope.custShowYAxis = false;
+
+                $scope.utilData = {};
+
+                function processFacilityUtilization(facilities) {
+
+                    // figure total sq ft and utilization
+                    var totalSize = 0;
+                    var usedSize = 0;
+                    facilities.forEach(function(facility) {
+                        totalSize += facility.size;
+                        usedSize += (facility.utilization * facility.size);
+                    });
+
+                    var today = new Date();
+                    var dates = ['dates'];
+                    var yData = ['used'];
+
+                    for (var d = 20 - 1; d >= 1; d--) {
+                        dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
+                        yData.push(Math.floor(totalSize * Math.random()));
+                    }
+
+                    // add one more representing today
+                    dates.push(new Date(today.getTime()));
+                    yData.push(Math.floor(usedSize));
+
+                    $scope.utilData = {
+                        dataAvailable: true,
+                        used: Math.floor(usedSize),
+                        total: Math.floor(totalSize),
+                        xData: dates,
+                        yData: yData
+                    };
+                }
+
+                processFacilityUtilization($scope.facilities);
+
+                $scope.$on('facilities:updated', function(event, facilities) {
+                    processFacilityUtilization(facilities);
+                });
+
+            }])
+
+    .controller("ExecTopFacilitiesController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+
+                $scope.facilities = Reports.getFacilities();
+                console.log("got facilities: " + JSON.stringify($scope.facilities));
+                $scope.data = {};
+                $scope.titles = {};
+                $scope.units = "";
+                $scope.donutData = {};
+                $scope.donutConfig = {};
+
+                var colorPal = [
+                    patternfly.pfPaletteColors.blue,
+                    patternfly.pfPaletteColors.green,
+                    patternfly.pfPaletteColors.orange,
+                    patternfly.pfPaletteColors.red
+                ];
+
+                function processFacilities(facilities) {
+                    console.log("got UPDATED facilities: " + JSON.stringify(facilities));
+
+                    $scope.facilities = facilities.sort(function(f1, f2) {
+                        return (f2.utilization - f1.utilization);
+                    });
+
+                    $scope.donutData = {
+                        type: 'donut',
+                        columns: $scope.facilities.map(function(facility) {
+                            return [
+                                facility.name, facility.utilization
+                            ]
+                        }),
+                        colors: {}
+                    };
+
+                    $scope.facilities.forEach(function(facility, idx) {
+                        $scope.donutData.colors[facility.name] =  colorPal[idx % colorPal.length];
+                    });
+
+                    $scope.donutConfig = {
+                        'chartId': 'noneChart',
+                        'thresholds':{'warning':'60','error':'90'}
+                    };
+
+                    $scope.facilities.forEach(function(facility) {
+                        $scope.data[facility.name] = {
+                            used: facility.utilization * 100,
+                            total: 100
+                        };
+
+                        $scope.titles[facility.name] = facility.name;
+                    });
+
+                    console.log("final facilities data: " + JSON.stringify($scope.data));
+
+                    var donutConfig = patternfly.c3ChartDefaults().getDefaultDonutConfig();
+                    donutConfig.bindto = '#donut-chart-8';
+                    donutConfig.tooltip = {show: true};
+                    donutConfig.data = $scope.donutData;
+
+                    donutConfig.legend = {
+                        show: true,
+                        position: 'right'
+                    };
+                    // donutConfig.size = {
+                    //     width: 251,
+                    //     height: 161
+                    // };
+
+                    c3.generate(donutConfig);
+                    patternfly.pfSetDonutChartTitle("#donut-chart-8", "4", "Facilities");
+
+                }
+
+                if ($scope.facilities && $scope.facilities.length > 0) {
+                    processFacilities($scope.facilities);
+                }
+
+                $scope.$on('facilities:updated', function(event, facilities) {
+                    if (facilities && facilities.length > 0) {
+                        processFacilities(facilities);
+                    }
+                });
+
+            }])
+
+    .controller("ExecBizTrendsController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData',
+            function ($scope, $http, $filter, Notifications, SensorData) {
+
+        $scope.chartConfig = patternfly.c3ChartDefaults().getDefaultAreaConfig();
+
+        $scope.setPeriod = function(period) {
+            console.log("setting period to " + period);
+            xPoints = ['x'];
+            currentUse = ['Current Period'];
+            previousUse = ['Previous Period'];
+
+            if (period == 'month') {
+                $scope.timeFrame = "Last Month";
+                for (var i = 30; i >= 0; i--) {
+                    xPoints.push(now - (i * 24 * 60 * 60 * 1000));
+                    currentUse.push(Math.random() * 200);
+                    previousUse.push(Math.random() * 200);
+                }
+            } else if (period == 'year') {
+                $scope.timeFrame = "Last Year";
+                for (var i = 12; i >= 0; i--) {
+                    xPoints.push(now - (i * 30 * 24 * 60 * 60 * 1000));
+                    currentUse.push(Math.random() * 200);
+                    previousUse.push(Math.random() * 200);
+                }
+            } else {
+                $scope.timeFrame = "Beginning of Time";
+                for (var i = 60; i >= 0; i--) {
+                    xPoints.push(now - (i * 30 * 24 * 60 * 60 * 1000));
+                    currentUse.push(Math.random() * 200);
+                    previousUse.push(Math.random() * 200);
+                }
+            }
+
+            $scope.chartConfig.data = {
+                x: 'x',
+                columns: [
+                    xPoints, currentUse, previousUse
+                ],
+                type: 'area-spline',
+                colors: {
+                    'Previous Period': '#dddddd'
+                }
+
+            };
+
+            $scope.chartConfig.axis = {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: (period == 'month') ? '%b %d': (period == 'year' ? '%b' : '%b %Y')
+                    }
+                }
+            };
+
+            $scope.chartConfig.tooltip = {
+                format: {
+                    value: function (value, ratio, id, index) {
+                        return ( value.toFixed(1) + " m.p.g.");
+                    }
+                }
+            };
+        };
+
+
+        console.log("chart config: " + JSON.stringify($scope.chartConfig));
+
+        var now = new Date().getTime();
+        var xPoints = ['x'], currentUse = ['Current Period'], previousUse = ['Previous Period'];
+
+        $scope.setPeriod('year');
+        $scope.timeFrame = "Last Year";
+
+
+            }])
+
+    .controller("ExecSummaryController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+
+            $scope.summaries = Reports.getSummaries();
+
+            var icons = {
+                'clients': 'fa fa-user',
+                'packages': 'fa fa-tag',
+                'vehicles': 'fa fa-truck',
+                'operators': 'fa fa-group',
+                'facilities': 'fa fa-building',
+                'managers': 'fa fa-group'
+            };
+
+            function processSummaries(summaries) {
+                $scope.summaries = summaries;
+                summaries.forEach(function(summary) {
+                    $scope.summaries[summary.name] = {
+                        "name": summary.name,
+                        "title": summary.title,
+                        "count": summary.count,
+                        "iconClass": icons[summary.name],
+                        "notifications": []
+                    };
+
+
+                    if (summary.warningCount <= 0 && summary.errorCount <= 0) {
+                        $scope.summaries[summary.name].notifications = [{
+                            "iconClass":"pficon pficon-ok"
+                        }]
+                    }
+
+                    if (summary.warningCount > 0) {
+                        $scope.summaries[summary.name].notifications.push({
+                            "iconClass":"pficon pficon-warning-triangle-o",
+                            "count":summary.warningCount
+                        })
+                    }
+                    if (summary.errorCount > 0) {
+                        $scope.summaries[summary.name].notifications.push({
+                            "iconClass":"pficon pficon pficon-error-circle-o",
+                            "count":summary.errorCount
+                        })
+                    }
+                });
+
+            }
+
+            $scope.$on("summaries:updated", function(event, summaries) {
+                processSummaries(summaries);
+            });
+
+            processSummaries($scope.summaries);
+
+            }])
+
+
     .controller("HomeController",
         ['$scope', '$http', '$filter', 'Notifications', 'SensorData',
             function ($scope, $http, $filter, Notifications, SensorData) {
@@ -381,8 +678,8 @@ angular.module('app')
             }])
 
     .controller("HeaderController",
-        ['$scope', '$location', '$http', 'APP_CONFIG', 'Notifications',
-            function ($scope, $location, $http, APP_CONFIG, Notifications) {
+        ['$scope', '$location', '$http', 'APP_CONFIG', 'Notifications', 'Reports',
+            function ($scope, $location, $http, APP_CONFIG, Notifications, Reports) {
                 $scope.userInfo = {
                     fullName: "John Q. Shipper"
                 };
@@ -403,9 +700,10 @@ angular.module('app')
                         Notifications.error("Error resetting. Reload to retry");
                     });
                 };
-                $scope.shipmentCount = 0;
+                $scope.shipmentCount = Reports.getShipCount();
+
                 $scope.$watch(function () {
-                    return 0;
+                    return Reports.getShipCount();
                 }, function (newVal, oldVal) {
                     $scope.shipmentCount = newVal;
                 });

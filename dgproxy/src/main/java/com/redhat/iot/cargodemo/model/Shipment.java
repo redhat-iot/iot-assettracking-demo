@@ -8,6 +8,10 @@ import java.util.List;
 @XmlRootElement(name="shipment")
 public class Shipment implements Serializable {
 
+    public enum Status {
+        OK, WARNING, ERROR
+    }
+
     private List<Telemetry> telemetry;
     private Customer customer;
     private String desc;
@@ -19,6 +23,15 @@ public class Shipment implements Serializable {
     private double amount_paid;
     // realtime data
     private Vehicle cur_vehicle;
+    private Status status;
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
     public String getName() {
         return name;
