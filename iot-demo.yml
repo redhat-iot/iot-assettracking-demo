@@ -643,7 +643,7 @@ objects:
           - name: ES_HEAP_SIZE
             value: ${ELASTIC_SEARCH_MEMORY}
           - name: ES_JAVA_OPTS
-            value: -Des.cluster.name=kapua-datastore
+            value: -Des.cluster.name=kapua-datastore -Des.http.cors.enabled=true -Des.http.cors.allow-origin=*
           image: elasticsearch:2.4
           imagePullPolicy: Always
           name: elasticsearch
