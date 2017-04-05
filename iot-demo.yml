@@ -479,6 +479,10 @@ objects:
       protocol: TCP
       port: 1883
       nodePort: 31883
+    - name: mqtts-tcp
+      protocol: TCP
+      port: 8883
+      nodePort: 31885
     - name: mqtt-websocket-tcp
       protocol: TCP
       port: 61614
