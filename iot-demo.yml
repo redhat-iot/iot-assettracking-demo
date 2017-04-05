@@ -8,23 +8,23 @@ metadata:
   name: iot-demo
 
 parameters:
-- name:           IMAGE_VERSION 
-  description:      The version of the image to use
-  value:            latest
-- name:           DOCKER_ACCOUNT
-  description:      The docker hub account name to pull from
-  value:            redhatiot
-- name:           JOLOKIA_PASSWORD
-  description:      The password used for the Jolokia endpoint authentication
-  generate:         expression
-  from:             '[a-zA-Z0-9]{15}'
-  required:         true
-- name:           JOLOKIA_USER
-  description:      The username used for the Jolokia endpoint authentication
-  value:            jolokia
-- name:           ELASTIC_SEARCH_MEMORY
-  descrption:       The minimum and maximun Java heap space for Elasticsearch
-  value:            256m
+- name: IMAGE_VERSION
+  description: The version of the image to use
+  value: latest
+- name: DOCKER_ACCOUNT
+  description: The docker hub account name to pull from
+  value: redhatiot
+- name: JOLOKIA_PASSWORD
+  description: The password used for the Jolokia endpoint authentication
+  generate: expression
+  from: '[a-zA-Z0-9]{15}'
+  required: true
+- name: JOLOKIA_USER
+  description: The username used for the Jolokia endpoint authentication
+  value: jolokia
+- name: ELASTIC_SEARCH_MEMORY
+  descrption: The minimum and maximun Java heap space for Elasticsearch
+  value: 256m
 - description: Maven mirror url. If nexus is deployed locally, use nexus url (e.g. http://nexus.ci:8081/content/groups/public/)
   displayName: Maven mirror url
   name: MAVEN_MIRROR_URL
@@ -48,11 +48,11 @@ parameters:
   value: master
 - description: MQ Broker username
   name: BROKER_USERNAME
-  value: "demo-gw"
+  value: "demo-gw2"
   required: true
 - description: MQ Broker password
   name: BROKER_PASSWORD
-  value: "RedHat123!@#"
+  value: "RedHat123"
   required: true
 - description: OpenShift load-balanced MQ Broker service name
   name: BROKER_WS_NAME
@@ -86,14 +86,295 @@ parameters:
   name: DATASTORE_CACHE
   value: "customer,facility,operator,shipment,vehicle"
   required: true
-- name: IMAGE_VERSION
-  description: The version of the image to use
+- description: Number of Kura Simulators to run
+  name: KSIM_NUM_GATEWAYS
+  value: "2"
   required: true
-  value: latest
-#- name: DOCKER_ACCOUNT
-#  description: The docker hub account name to pull from
-#  required: true
-#  value: redhatiot
+- description: Kapua Account Name
+  name: KSIM_ACCOUNT_NAME
+  value: "Red-Hat"
+  required: true
+- description: Simulator Name Factory
+  name: KSIM_NAME_FACTORY
+#  value: "host:addr"
+- description: Simulator Name Custom Prefix
+  name: KSIM_BASE_NAME
+  value: "truck-"
+- description: Simulator Config URL
+  name: KSIM_SIMULATION_CONFIGURATION
+  value: >
+    {
+      "applications": {
+          "iot-demo": {
+              "scheduler": { "period": 2000 },
+              "topics": {
+                  "trucks/truck-1": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-2": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-3": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-4": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-5": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-6": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-7": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-8": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-9": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "trucks/truck-10": {
+                      "metrics": {
+                          "rpm"       : { "generator": "rpm", "name": "value" },
+                          "temp"       : { "generator": "temp", "name": "value" },
+                          "oilpress"   : { "generator": "oilpress", "name": "value" }
+                      }
+                  },
+                  "packages/pkg-1": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-2": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-3": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-4": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-5": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-6": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-7": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-8": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-9": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-10": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-11": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-12": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-13": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-14": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-15": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-16": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-17": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-18": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-19": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  },
+                  "packages/pkg-20": {
+                      "metrics": {
+                          "Ambient"  : { "generator": "ambient_temp" },
+                          "Light"    : { "generator": "lux" },
+                          "Humidity" : { "generator": "humidity" },
+                          "Pressure" : { "generator": "barometer" }
+                      }
+                  }
+              },
+              "generators": {
+                  // "body-gen": {
+                  // },
+                  // "position-gen": {
+                  // },
+                  "rpm": {
+                      "type": "sine", "period": 3000, "offset": 1200, "amplitude": 600
+                  },
+                  "temp": {
+                      "type": "sine", "period": 6000, "shift": 100, "offset": 190, "amplitude": 40
+                  },
+                  "oilpress": {
+                      "type": "sine", "period": 3000, "shift": 400, "offset": 50, "amplitude": 20
+                  },
+                  "ambient_temp": {
+                      "type": "sine", "period": 10000, "offset": 25, "amplitude": 4
+                  },
+                  "lux": {
+                      "type": "sine", "period": 10000, "shift": 45.5, "offset": 220, "amplitude": 90
+                  },
+                  "humidity": {
+                      "type": "sine", "period": 432000, "offset": 70, "amplitude": 20
+                  },
+                  "barometer": {
+                      "type": "sine", "period": 432000, "offset": 29.92, "amplitude": .5
+                  }
+                  //,
+                  // "dslm": {
+                  // 	"metrics": {
+                  // 		"dslm": 42
+                  // 	}
+                  // }
+              }
+          }
+      }
+    }
 
 labels:
   demo: summit2017
@@ -389,6 +670,51 @@ objects:
             name: hawkular-openshift-agent-kapua
         - name: elasticsearch-data
           emptyDir: {}
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: simulator
+  spec:
+    replicas: 1
+    selector:
+      app: simulator
+      deploymentconfig: simulator
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: simulator
+          deploymentconfig: simulator
+      spec:
+        containers:
+          - name: simulator
+            image: ${DOCKER_ACCOUNT}/kura-simulator:${IMAGE_VERSION}
+            imagePullPolicy: Always
+            restartPolicy: Always
+            dnsPolicy: ClusterFirst
+            env:
+              - name: KSIM_BROKER_PROTO
+                value: $(KAPUA_BROKER_PORT_1883_TCP_PROTO)
+              - name: KSIM_BROKER_HOST
+                value: $(KAPUA_BROKER_SERVICE_HOST)
+              - name: KSIM_BROKER_PORT
+                value: $(KAPUA_BROKER_PORT_1883_TCP_PORT)
+              - name: KSIM_BROKER_USER
+                value: ${BROKER_USERNAME}
+              - name: KSIM_BROKER_PASSWORD
+                value: ${BROKER_PASSWORD}
+              - name: KSIM_BASE_NAME
+                value: ${KSIM_BASE_NAME}
+              - name: KSIM_NAME_FACTORY
+                value: ${KSIM_NAME_FACTORY}
+              - name: KSIM_NUM_GATEWAYS
+                value: ${KSIM_NUM_GATEWAYS}
+              - name: KSIM_ACCOUNT_NAME
+                value: ${KSIM_ACCOUNT_NAME}
+              - name: KSIM_SIMULATION_CONFIGURATION
+                value: ${KSIM_SIMULATION_CONFIGURATION}
 
 # Services
         
