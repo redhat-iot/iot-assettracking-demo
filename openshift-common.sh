@@ -10,7 +10,7 @@
 
 #!/usr/bin/env bash
 
-export OPENSHIFT_PROJECT_NAME="redhat-iot"
+export OPENSHIFT_PROJECT_NAME=${OPENSHIFT_PROJECT_NAME:=redhat-iot}
 
 if which oc &>/dev/null; then
   echo Using "oc" from path
