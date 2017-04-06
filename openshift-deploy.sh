@@ -15,6 +15,7 @@ set -e
 . openshift-common.sh
 
 OPENSHIFT_PROJECT_NAME=${OPENSHIFT_PROJECT_NAME:=redhat-iot}
+IMAGE_VERSION=${IMAGE_VERSION:=2017-04-05}
 
 # print error and exit when necessary
 
@@ -27,5 +28,6 @@ $OC describe "project/$OPENSHIFT_PROJECT_NAME" &>/dev/null || die "Project '$OPE
 ### Create Kapua from template
 
 echo Creating Kapua from template ...
-$OC new-app -n "$OPENSHIFT_PROJECT_NAME" -f iot-demo.yml # -p "DOCKER_ACCOUNT=$DOCKER_ACCOUNT" -p "GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY"
+$OC create configmap data-simulator-config --from-file=ksim.simulator.configuration=simulator/generators.json -n "$OPENSHIFT_PROJECT_NAME"
+$OC new-app -n "$OPENSHIFT_PROJECT_NAME" -f iot-demo.yml -p IMAGE_VERSION=${IMAGE_VERSION}
 echo Creating Kapua from template ... done!

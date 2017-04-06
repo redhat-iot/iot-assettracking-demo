@@ -100,281 +100,6 @@ parameters:
 - description: Simulator Name Custom Prefix
   name: KSIM_BASE_NAME
   value: "truck-"
-- description: Simulator Config URL
-  name: KSIM_SIMULATION_CONFIGURATION
-  value: >
-    {
-      "applications": {
-          "iot-demo": {
-              "scheduler": { "period": 2000 },
-              "topics": {
-                  "trucks/truck-1": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-2": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-3": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-4": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-5": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-6": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-7": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-8": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-9": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "trucks/truck-10": {
-                      "metrics": {
-                          "rpm"       : { "generator": "rpm", "name": "value" },
-                          "temp"       : { "generator": "temp", "name": "value" },
-                          "oilpress"   : { "generator": "oilpress", "name": "value" }
-                      }
-                  },
-                  "packages/pkg-1": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-2": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-3": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-4": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-5": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-6": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-7": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-8": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-9": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-10": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-11": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-12": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-13": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-14": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-15": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-16": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-17": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-18": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-19": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  },
-                  "packages/pkg-20": {
-                      "metrics": {
-                          "Ambient"  : { "generator": "ambient_temp" },
-                          "Light"    : { "generator": "lux" },
-                          "Humidity" : { "generator": "humidity" },
-                          "Pressure" : { "generator": "barometer" }
-                      }
-                  }
-              },
-              "generators": {
-                  // "body-gen": {
-                  // },
-                  // "position-gen": {
-                  // },
-                  "rpm": {
-                      "type": "sine", "period": 3000, "offset": 1200, "amplitude": 600
-                  },
-                  "temp": {
-                      "type": "sine", "period": 6000, "shift": 100, "offset": 190, "amplitude": 40
-                  },
-                  "oilpress": {
-                      "type": "sine", "period": 3000, "shift": 400, "offset": 50, "amplitude": 20
-                  },
-                  "ambient_temp": {
-                      "type": "sine", "period": 10000, "offset": 25, "amplitude": 4
-                  },
-                  "lux": {
-                      "type": "sine", "period": 10000, "shift": 45.5, "offset": 220, "amplitude": 90
-                  },
-                  "humidity": {
-                      "type": "sine", "period": 432000, "offset": 70, "amplitude": 20
-                  },
-                  "barometer": {
-                      "type": "sine", "period": 432000, "offset": 29.92, "amplitude": .5
-                  }
-                  //,
-                  // "dslm": {
-                  // 	"metrics": {
-                  // 		"dslm": 42
-                  // 	}
-                  // }
-              }
-          }
-      }
-    }
 
 labels:
   demo: summit2017
@@ -714,7 +439,10 @@ objects:
               - name: KSIM_ACCOUNT_NAME
                 value: ${KSIM_ACCOUNT_NAME}
               - name: KSIM_SIMULATION_CONFIGURATION
-                value: ${KSIM_SIMULATION_CONFIGURATION}
+                valueFrom:
+                  configMapKeyRef:
+                    name: data-simulator-config
+                    key: ksim.simulator.configuration
 
 # Services
         
@@ -750,14 +478,19 @@ objects:
     - name: mqtt-tcp
       protocol: TCP
       port: 1883
-      targetPort: 1883
+      nodePort: 31883
+    - name: mqtts-tcp
+      protocol: TCP
+      port: 8883
+      nodePort: 31885
     - name: mqtt-websocket-tcp
       protocol: TCP
       port: 61614
-      targetPort: 61614
+      nodePort: 31614
     selector:
       app: kapua-broker
       deploymentconfig: kapua-broker
+    type: NodePort
 - apiVersion: v1
   kind: Service
   metadata:

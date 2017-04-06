@@ -10,11 +10,14 @@
 #
 ###############################################################################
 
+. openshift-common.sh
 
 : ${OPENSHIFT_PROJECT_NAME:=redhat-iot}
 : ${DOCKER_ACCOUNT:=redhatiot}
 
 
 # Set up new simulator instance
-oc delete dc/simulator
-oc new-app -n "$OPENSHIFT_PROJECT_NAME" -f iot-simulator.yml #-p "DOCKER_ACCOUNT=$DOCKER_HUB_ACCOUNT" -p "BROKER_URL=$BROKER_URL" -p "IMAGE_VERSION=0.1.2"
+$OC delete dc/simulator
+$OC delete configmap data-simulator-config
+$OC create configmap data-simulator-config --from-file=ksim.simulator.configuration=simulator/generators.json -n "$OPENSHIFT_PROJECT_NAME"
+$OC new-app -n "$OPENSHIFT_PROJECT_NAME" -f iot-simulator.yml
