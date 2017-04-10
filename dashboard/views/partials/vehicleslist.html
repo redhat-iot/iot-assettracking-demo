@@ -25,10 +25,10 @@
 
             <tr ng-class="{ active: isSelected(vehicle)}" ng-click="selectVehicle(vehicle);"
                 ng-repeat="vehicle in vehicles | filter:query track by $index">
-                <td data-toggle="tooltip" data-placement="right" title="{{vehicle.vin}}">{{vehicle.vin}}</td>
+                <td data-toggle="tooltip" data-placement="right" title="{{vehicle.desc}}">{{vehicle.vin}}</td>
                 <td>{{vehicle.origin.address}}</td>
                 <td>{{vehicle.destination.address}}</td>
-                <td>BLANK</td>
+                <td>{{vehicle.eta | date:'medium'}}</td>
                 <td>BLANK</td>
                 <td>BLANK</td>
             </tr>

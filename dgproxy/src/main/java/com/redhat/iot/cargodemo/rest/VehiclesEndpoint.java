@@ -53,7 +53,7 @@ public class VehiclesEndpoint {
     }
 
     @GET
-    @Path("/all")
+    @Path("/")
     @Produces({"application/json"})
     public List<Vehicle> getAll() {
 

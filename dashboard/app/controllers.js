@@ -758,27 +758,27 @@ angular.module('app')
                     };
                 });
 
-                // start some fakery
-                $interval(function() {
-                    addData(vehicle, [
-                        {
-                            name: 'RPM',
-                            value: Math.floor(Math.random() * 4000)
-                        },
-                        {
-                            name: 'Engine Temp',
-                            value: Math.floor(Math.random() * 300)
-                        },
-                        {
-                            name: 'Oil Pressure',
-                            value: Math.floor(1000 + Math.random() * 1500)
-                        },
-                        {
-                            name: 'Days Since Tune-up',
-                            value: 340
-                        }
-                    ]);
-                }, 2000);
+                // // start some fakery
+                // $interval(function() {
+                //     addData(vehicle, [
+                //         {
+                //             name: 'RPM',
+                //             value: Math.floor(Math.random() * 4000)
+                //         },
+                //         {
+                //             name: 'Engine Temp',
+                //             value: Math.floor(Math.random() * 300)
+                //         },
+                //         {
+                //             name: 'Oil Pressure',
+                //             value: Math.floor(1000 + Math.random() * 1500)
+                //         },
+                //         {
+                //             name: 'Days Since Tune-up',
+                //             value: 340
+                //         }
+                //     ]);
+                // }, 2000);
                 SensorData.subscribeVehicle(vehicle, function(data) {
                     console.log("received vehicle data: " + JSON.stringify(data));
                     $scope.$apply(function() {

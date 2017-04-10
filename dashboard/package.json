@@ -9,7 +9,8 @@
   "homepage": "https://github.com/redhat-iot",
   "dependencies": {
     "express": "^4.13.4",
-    "request": "^2.74.0"
+    "request": "^2.74.0",
+    "n3-charts": "2.0.18"
   },
   "devDependencies": {
     "bower": ">=1.7.9"

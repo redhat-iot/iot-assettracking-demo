@@ -33,10 +33,18 @@ import java.util.*;
 @Singleton
 public class UtilsEndpoint {
 
-    public static final int MAX = 10;
-    public static final int FAC_MAX = 4;
+    public static final int MAX_VEHICLES = 10;
+    public static final int MAX_PACKAGES_PER_VEHICLE = 20;
+    public static final long DAY_IN_MS = 24*60*60*1000;
+
     @Inject
     DGService dgService;
+
+    @GET
+    @Path("/health")
+    public String health() {
+        return "ok";
+    }
 
     @POST
     @Path("/resetAll")
@@ -55,67 +63,94 @@ public class UtilsEndpoint {
         operatorCache.clear();
         shipmentCache.clear();
 
-        List<String> addrs = new ArrayList<>();
-        addrs.add("Orlando, FL");
-        addrs.add("Kissimmee, FL");
-        addrs.add("Gainesville, FL");
-        addrs.add("Daytona Beach, FL");
-        addrs.add("Port Orange, FL");
-        addrs.add("Miami, FL");
-        addrs.add("Jacksonville, FL");
-        addrs.add("Oviedo, FL");
-        addrs.add("Winter Springs, FL");
+        for (String COMPANY : COMPANIES) {
+            customerCache.put(COMPANY,
+                    new Customer(COMPANY, "password"));
+        }
 
-        for (int i = 0; i < MAX; i++) {
-            customerCache.put("Customer " + i,
-                    new Customer("Customer + " + i, "customer" + i));
-            operatorCache.put("Operator " + i,
-                    new Operator("Operator " + i, "operator"+i));
+        for (String oper : OPERATOR_NAMES){
+            operatorCache.put(oper, new Operator(oper, "password"));
+        }
 
+        List<String> facs = new ArrayList<String>();
+        facs.addAll(Arrays.asList(ORIGINS));
+        facs.addAll(Arrays.asList(DESTS));
 
+        for (String facName : facs) {
+
+            facilitiesCache.put(facName,
+                    new Facility(facName, facName,
+                            new LatLng(-80, 20),
+                            Math.random() * 1000.0));
 
         }
-        for (int i = 0; i < FAC_MAX; i++) {
-            facilitiesCache.put("Facility " + i,
-                    new Facility("Facility " + i, addrs.get((int)(Math.floor(Math.random() * addrs.size()))),
-                            new LatLng(-80.0, 20.0), Math.random() * 1000.0));
 
-        }
-        for (int i = 0; i < MAX; i++) {
 
-            Vehicle v = new Vehicle("" + Math.random(), "Desc for Vehicle " + i);
-            v.setOrigin(facilitiesCache.get("Facility " + ((int) (Math.floor(Math.random() * FAC_MAX)))));
-            v.setDestination(facilitiesCache.get("Facility " + ((int) (Math.floor(Math.random() * FAC_MAX)))));
+        for (int i = 1; i <= MAX_VEHICLES; i++) {
+
+            String vin = "truck-" + i;
+
+            Vehicle v = new Vehicle(vin, rand(VEHICLE_TYPES));
+
+            Facility v_origin = facilitiesCache.get(rand(ORIGINS));
+            Facility v_dest = facilitiesCache.get(rand(DESTS));
+
+            v.setOrigin(v_origin);
+            v.setDestination(v_dest);
+
             List<Telemetry> vehicleTelemetry = new ArrayList<>();
-            vehicleTelemetry.add(new Telemetry("°C", 300, 0.0, "Engine Temp", "Engine"));
-            vehicleTelemetry.add(new Telemetry("rpm", 3500, 0.0, "RPM", "RPM"));
-            vehicleTelemetry.add(new Telemetry("psi", 2000.0, 1000.0, "Oil Pressure", "Oil"));
-            vehicleTelemetry.add(new Telemetry("days", 365, 0.0, "Days Since Tune-up", "Maint"));
+            vehicleTelemetry.add(new Telemetry("°C", 300, 0.0, "Engine Temp", "temp"));
+            vehicleTelemetry.add(new Telemetry("rpm", 3500, 0.0, "RPM", "rpm"));
+            vehicleTelemetry.add(new Telemetry("psi", 2000.0, 1000.0, "Oil Pressure", "oilpress"));
             v.setTelemetry(vehicleTelemetry);
-            vehiclesCache.put("Vehicle " + i, v);
-        }
 
-        for (int i = 0; i < MAX; i++) {
-            List<Facility> route = new ArrayList<Facility>();
-            for (int j = 0; j < 4; j++) {
-                route.add(facilitiesCache.get("Facility " + ((int) (Math.floor(Math.random() * FAC_MAX)))));
+            Date v_eta = new Date(new Date().getTime() + DAY_IN_MS + (long)(Math.random() * DAY_IN_MS * 2));
+
+            v.setEta(v_eta);
+            vehiclesCache.put(vin, v);
+
+            for (int j = 1; j <= MAX_PACKAGES_PER_VEHICLE; j++) {
+
+                List<Facility> route = new ArrayList<Facility>();
+
+                Facility p_origin = facilitiesCache.get(rand(ORIGINS));
+                Facility p_dest = facilitiesCache.get(rand(DESTS));
+
+                route.add(p_origin);
+                route.add(v_dest);
+                route.add(p_dest);
+
+                List<Telemetry> telemetry = new ArrayList<>();
+                telemetry.add(new Telemetry("°C", 100.0, 0.0, "Temperature", "Ambient"));
+                telemetry.add(new Telemetry("%", 100.0, 0.0, "Humidity", "Humidity"));
+                telemetry.add(new Telemetry("lm", 2000.0, 1000.0, "Light", "Light"));
+                telemetry.add(new Telemetry("mmhg", 200, 100, "Pressure", "Pressure"));
+
+                Customer cust = customerCache.get(rand(COMPANIES));
+
+                // left ~3 days, ago eta ~5 days from now
+                Date etd = new Date(new Date().getTime() - DAY_IN_MS - (long)(Math.random() * DAY_IN_MS * 3));
+                Date eta = new Date(new Date().getTime() + DAY_IN_MS + (long)(Math.random() * DAY_IN_MS * 4));
+
+                String sensorId = "pkg-" + j;
+
+                Shipment s = new Shipment(customerCache.get(rand(COMPANIES)),
+                        "Package " + j, rand(PKG_DESCS) +  " [" + cust.getName() + "]",
+                        sensorId, route, etd, eta, Math.random() * 2000, v);
+
+                s.setTelemetry(telemetry);
+                shipmentCache.put(sensorId + "/" + vin, s);
+                System.out.println("Inserting shipment: " + s);
             }
 
-            List<Telemetry> telemetry = new ArrayList<>();
-            telemetry.add(new Telemetry("°C", 100.0, 0.0, "Temperature", "Ambient"));
-            telemetry.add(new Telemetry("%", 100.0, 0.0, "Humidity", "Humidity"));
-            telemetry.add(new Telemetry("lm", 2000.0, 1000.0, "Light", "Light"));
 
-            Shipment s = new Shipment(customerCache.get("Customer " + i), "PKG" + i, "Shipment for customer " + i,
-                    "B0:B4:48:00:00:08", route, new Date(), new Date(), 22.2,
-                    vehiclesCache.get("Vehicle " + ((int) (Math.floor(Math.random() * MAX)))));
-
-            s.setTelemetry(telemetry);
-            shipmentCache.put("Shipment " + i, s);
         }
-
         calcUtilization();
 
+    }
+
+    private String rand(String[] strs) {
+        return strs[(int)Math.floor(Math.random() * strs.length)];
     }
 
     private void calcUtilization() {
@@ -140,7 +175,11 @@ public class UtilsEndpoint {
 
         for (String s1 : facCache.keySet()) {
             Facility f = facCache.get(s1);
-            f.setUtilization(2.5 * ((double)facCount.get(f.getName()) / (double)total));
+            if (!facCount.containsKey(f.getName())) {
+                f.setUtilization(0);
+            } else {
+                f.setUtilization(2.5 * ((double) facCount.get(f.getName()) / (double) total));
+            }
             facCache.put(f.getName(), f);
         }
     }
@@ -200,12 +239,12 @@ public class UtilsEndpoint {
         summary.setTitle("Facilities");
         summary.setCount(cache.keySet().size());
 
-        long warningCount =  cache.keySet().stream()
+        long warningCount = cache.keySet().stream()
                 .map(cache::get)
                 .filter(v -> v.getUtilization() < .7 && v.getUtilization() > .5)
                 .count();
 
-        long errorCount =  cache.keySet().stream()
+        long errorCount = cache.keySet().stream()
                 .map(cache::get)
                 .filter(v -> v.getUtilization() < .5)
                 .count();
@@ -225,12 +264,12 @@ public class UtilsEndpoint {
         summary.setCount(cache.keySet().size());
 
 
-        long warningCount =  cache.keySet().stream()
+        long warningCount = cache.keySet().stream()
                 .map(cache::get)
                 .filter(v -> v.getStatus() == Shipment.Status.WARNING)
                 .count();
 
-        long errorCount =  cache.keySet().stream()
+        long errorCount = cache.keySet().stream()
                 .map(cache::get)
                 .filter(v -> v.getStatus() == Shipment.Status.ERROR)
                 .count();
@@ -261,12 +300,12 @@ public class UtilsEndpoint {
         summary.setCount(cache.keySet().size());
 
 
-        long warningCount =  cache.keySet().stream()
+        long warningCount = cache.keySet().stream()
                 .map(cache::get)
                 .filter(v -> v.getStatus() == Vehicle.Status.WARNING)
                 .count();
 
-        long errorCount =  cache.keySet().stream()
+        long errorCount = cache.keySet().stream()
                 .map(cache::get)
                 .filter(v -> v.getStatus() == Vehicle.Status.ERROR)
                 .count();
@@ -275,6 +314,114 @@ public class UtilsEndpoint {
         summary.setErrorCount(errorCount);
         return summary;
     }
+
+
+    public static final String[] COMPANIES = new String[]{
+            "Wonka Industries",
+            "Acme Corp",
+            "Stark Industries",
+            "Ollivander's Wand Shop",
+            "Gekko & Co",
+            "Wayne Enterprises",
+            "Cyberdyne Systems",
+            "Cheers",
+            "Genco Pura",
+            "NY Enquirer",
+            "Duff Beer",
+            "Bubba Gump Shrimp Co",
+            "Olivia Pope & Associates",
+            "Sterling Cooper",
+            "Soylent",
+            "Hooli",
+            "Good Burger"
+    };
+
+    public static final String[] ORIGINS = new String[]{
+            "Winter Springs, FL",
+            "Raleigh, NC",
+            "Westford, MA",
+            "Atlanta, GA",
+            "Charleston, SC",
+            "Tarboro, NC",
+            "Huntsville, AL",
+            "Knoxville, TN",
+            "Showshoe, WV",
+            "Washington, D.C.",
+            "Virginia Beach, VA",
+            "New York, NY",
+            "Jacksonvilla, FL"
+    };
+
+    public static final String[] DESTS = new String[]{
+            "Chatanooga, TN",
+            "Louisville, KY",
+            "Omaha, NE",
+            "Chicago, IL",
+            "Des Moines, IA",
+            "Lexington, KY",
+            "New Orleans, LA",
+            "Mobile, AL"
+    };
+
+    public static final String[] VEHICLE_TYPES = new String[] {
+
+            "Box truck",
+            "Van",
+            "Cutaway van chassis",
+            "Medium Duty Truck such as Ford F-650 in North America",
+            "Medium Standard Truck",
+            "Platform truck",
+            "Flatbed truck (may also be light duty trucks)",
+            "Firetruck (may also be a heavy truck)",
+            "Recreational Vehicle or Motorhome",
+            "Concrete transport truck (cement mixer)",
+            "Mobile crane",
+            "Dump truck",
+            "Garbage truck",
+            "Log carrier",
+            "Refrigerator truck",
+            "Tractor unit",
+            "Tank truck",
+            "Heavy Hauler",
+            "F-35"
+    };
+
+    public static final String[] PKG_DESCS = new String[] {
+            "Spare F-22 Parts",
+            "Violins",
+            "Antique Baseballs",
+            "Frozen Cells",
+            "Machined Parts",
+            "Misc. Assembly Fasteners",
+            "Fresh Fruit",
+            "Frozen Steaks",
+            "Precious Jewels",
+            "Optical Hard Drives",
+            "Polyjuice Potion",
+            "Live Bait"
+    };
+
+    public static final String[] OPERATOR_NAMES = new String[]{
+            "R. Kint",
+            "H. Potter",
+            "A. Ventura",
+            "H. Lime",
+            "S. Kowalski",
+            "D. Vader",
+            "S. Spade",
+            "D. Strangelove",
+            "T. Montana",
+            "N. Rae",
+            "J. Benjamin",
+            "A. DeLarge",
+            "J. Cousteau",
+            "E. Scissorhands",
+            "G. Bailey",
+            "Lt. Kilgore",
+            "T. Dude",
+            "F. Booth",
+            "F. Kreuger"
+    };
 
 }
 

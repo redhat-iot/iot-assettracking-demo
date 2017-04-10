@@ -54,7 +54,7 @@ public class FacilitiesEndpoint {
     }
 
     @GET
-    @Path("/all")
+    @Path("/")
     @Produces({"application/json"})
     public List<Facility> getAll() {
 

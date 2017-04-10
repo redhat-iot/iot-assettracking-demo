@@ -40,16 +40,26 @@ public class ShipmentsEndpoint {
     DGService dgService;
 
     @GET
-    @Path("/{id}")
+    @Path("/")
     @Produces({"application/json"})
-    public List<Shipment> get(@PathParam("id") String id) {
+    public List<Shipment> getAll() {
+        Map<String, Shipment> cache = dgService.getShipments();
+        return cache.keySet().stream()
+                .map(cache::get)
+                .collect(Collectors.toList());
+
+    }
+    @GET
+    @Path("/{vin}")
+    @Produces({"application/json"})
+    public List<Shipment> get(@PathParam("vin") String vin) {
 
         Map<String, Shipment> cache = dgService.getShipments();
 
         // TODO: use DG queries properly
         return cache.keySet().stream()
                 .map(cache::get)
-                .filter(shipment -> id.equals(shipment.getCur_vehicle().getVin()))
+                .filter(shipment -> vin.equals(shipment.getCur_vehicle().getVin()))
                 .collect(Collectors.toList());
     }
 

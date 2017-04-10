@@ -60,8 +60,17 @@ public class DGService {
         cacheManager = new RemoteCacheManager(builder.build());
 
         System.out.println("DG Proxy connected to " + host + ":" + port + " preconfigured caches: " + cacheNames);
+
+        subscribeToAlerts();
     }
 
+
+    private void subscribeToAlerts() {
+        // subscribe to MQTT stream at
+        // RedHat/+/iot-demo/vehicle/+/alerts
+        // RedHat/+/iot-demo/packages/+/alerts
+
+    }
 
 
 }

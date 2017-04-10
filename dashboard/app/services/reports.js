@@ -23,7 +23,6 @@ angular.module('app')
 	            shipCount = summary.count;
             }
         });
-	    console.log("shipments to count: " + JSON.stringify(summaries));
 	    return shipCount;
     };
 	factory.getFacilities = function() {
@@ -53,7 +52,7 @@ angular.module('app')
         // get  facilities
         $http({
             method: 'GET',
-            url: configRestEndpoint + '/facilities/all'
+            url: configRestEndpoint + '/facilities'
         }).then(function (response) {
             facilities = response.data;
             if ((facilities == undefined) || (facilities.constructor !== Array)) {

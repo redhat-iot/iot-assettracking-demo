@@ -24,9 +24,9 @@
             <tbody>
 
             <tr ng-class="{ active: isSelected(shipment)}" ng-click="selectShipment(shipment);" ng-repeat="shipment in shipments | filter:shipquery track by $index">
-                <td data-toggle="tooltip" data-placement="right" title="{{shipment.customer.name}}">{{shipment.customer.name}} - {{shipment.sensor_id}}</td>
+                <td data-toggle="tooltip" data-placement="right" title="{{shipment.customer.name}}">{{shipment.customer.name}}({{shipment.sensor_id}})</td>
                 <td><a target="_blank" href="http://maps.google.com/?q={{shipment.route[0].address}}">{{shipment.route[0].address}}</a></td>
-                <td>TODO</a></td>
+                <td><a target="_blank" href="http://maps.google.com/?q={{shipment.route[shipment.route.length-1].address}}">{{shipment.route[shipment.route.length-1].address}}</a></td>
                 <td>{{shipment.eta | amCalendar:referenceTime:formats}}</td>
                 <td data-toggle="modal"
                     data-target="#alertsModal">

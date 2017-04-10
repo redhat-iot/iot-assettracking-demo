@@ -2,6 +2,7 @@ package com.redhat.iot.cargodemo.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @XmlRootElement(name="vehicle")
@@ -15,7 +16,16 @@ public class Vehicle implements Serializable {
     private List<Telemetry> telemetry;
     private Facility origin;
     private Facility destination;
+    private Date eta;
     private Status status;
+
+    public Date getEta() {
+        return eta;
+    }
+
+    public void setEta(Date eta) {
+        this.eta = eta;
+    }
 
     public Status getStatus() {
         return status;

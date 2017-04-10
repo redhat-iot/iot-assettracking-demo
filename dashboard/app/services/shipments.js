@@ -17,6 +17,7 @@ angular.module('app')
             url: configRestEndpoint + '/' + vehicle.vin
         }).then(function (response) {
             shipments = response.data;
+            console.log("shipments: " + JSON.stringify(shipments));
             if ((shipments == undefined) || (shipments.constructor !== Array)) {
                 Notifications.error("Error fetching Shipments for vehicle:" + vehicle.vin + " (invalid data). Reload to retry");
                 return;

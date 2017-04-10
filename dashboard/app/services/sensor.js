@@ -83,32 +83,14 @@ angular.module('app')
                 });
             });
         }
-        // factory.publish = function(topic, payload, onSuccess, onError) {
-        //     $http({
-        //         method: 'POST',
-        //         url: APP_CONFIG.EDC_REST_ENDPOINT + '/messages/publish',
-        //         headers: {
-        //             'Authorization': auth
-        //         },
-        //         data: {
-        //             topic: topic,
-        //             payload: payload
-        //         }
-        //
-        //     }).then(function(response) {
-        //         onSuccess();
-        //     }, function (response) {
-        //         onError(response);
-        //     });
-        // };
 
         factory.subscribePkg = function (pkg, listener) {
 
-            var topicName = "Red-Hat/demo-gw-vm/demo-kit/assets/" + pkg.sensor_id;
+            var topicName = "Red-Hat/+/iot-demo/packages/" + pkg.sensor_id;
             client.subscribe(topicName);
-            console.log("subscribed to " + topicName);
+            console.log("subscribed to package: " + topicName);
             listeners.push({
-                package: pkg,
+                pkg: pkg,
                 topic: topicName,
                 listener: listener
             });
@@ -116,9 +98,9 @@ angular.module('app')
 
         factory.subscribeVehicle = function (vehicle, listener) {
 
-            var topicName = "Red-Hat/demo-gw-vm/demo-kit/assets/" + vehicle.vin;
+            var topicName = "Red-Hat/+/iot-demo/trucks/" + vehicle.vin;
             client.subscribe(topicName);
-            console.log("subscribed to vehicle " + topicName);
+            console.log("subscribed to vehicle: " + topicName);
             listeners.push({
                 vehicle: vehicle,
                 topic: topicName,
@@ -127,28 +109,25 @@ angular.module('app')
         };
 
         factory.unsubscribeVehicle = function (vehicle) {
-            
-            // sockets = sockets.filter(function (socket) {
-            //     if (socket.topic == topic) {
-            //         if (socket.interval) {
-            //             clearInterval(socket.interval);
-            //         }
-            //         return false;
-            //     } else {
-            //         return true;
-            //     }
-            // })
+            var topicName = "Red-Hat/+/iot-demo/trucks/" + vehicle.vin;
+            client.unsubscribe(topicName);
+            listeners = listeners.filter(function(listener) {
+                return (listener.vehicle.vin != vehicle.vin);
+            });
+            console.log("unsubscribed from vehicle: " + topicName);
         };
 
+        factory.unsubscribePackage = function (pkg) {
+            var topicName = "Red-Hat/+/iot-demo/packages/" + pkg.sensor_id;
+            client.unsubscribe(topicName);
+            listeners = listeners.filter(function(listener) {
+                return (listener.pkg.sensor_id != pkg.sensor_id);
+            });
+            console.log("unsubscribed from package: " + topicName);
+        };
+
+
         factory.unsubscribeAll = function () {
-            // atmosphere.unsubscribe();
-            // sockets.forEach(function (socket) {
-            //     if (socket.interval) {
-            //         clearInterval(socket.interval);
-            //     }
-            // });
-            //
-            // sockets = [];
             listeners.forEach(function(listener) {
                client.unsubscribe(listener.topic);
             });

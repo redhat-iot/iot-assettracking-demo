@@ -53,7 +53,7 @@ public class CustomerEndpoint {
     }
 
     @GET
-    @Path("/all")
+    @Path("/")
     @Produces({"application/json"})
     public List<Customer> getAllCustomers() {
 
