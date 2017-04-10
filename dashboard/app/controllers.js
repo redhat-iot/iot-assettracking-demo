@@ -94,7 +94,6 @@ angular.module('app')
             function ($scope, $http, $filter, Notifications, SensorData, Reports) {
 
                 $scope.facilities = Reports.getFacilities();
-                console.log("got facilities: " + JSON.stringify($scope.facilities));
                 $scope.data = {};
                 $scope.titles = {};
                 $scope.units = "";
@@ -109,7 +108,6 @@ angular.module('app')
                 ];
 
                 function processFacilities(facilities) {
-                    console.log("got UPDATED facilities: " + JSON.stringify(facilities));
 
                     $scope.facilities = facilities.sort(function(f1, f2) {
                         return (f2.utilization - f1.utilization);
@@ -143,7 +141,6 @@ angular.module('app')
                         $scope.titles[facility.name] = facility.name;
                     });
 
-                    console.log("final facilities data: " + JSON.stringify($scope.data));
 
                     var donutConfig = patternfly.c3ChartDefaults().getDefaultDonutConfig();
                     donutConfig.bindto = '#donut-chart-8';
@@ -183,7 +180,6 @@ angular.module('app')
         $scope.chartConfig = patternfly.c3ChartDefaults().getDefaultAreaConfig();
 
         $scope.setPeriod = function(period) {
-            console.log("setting period to " + period);
             xPoints = ['x'];
             currentUse = ['Current Period'];
             previousUse = ['Previous Period'];
@@ -242,7 +238,6 @@ angular.module('app')
         };
 
 
-        console.log("chart config: " + JSON.stringify($scope.chartConfig));
 
         var now = new Date().getTime();
         var xPoints = ['x'], currentUse = ['Current Period'], previousUse = ['Previous Period'];
@@ -403,7 +398,7 @@ angular.module('app')
                         var config = $scope.config[metric.name];
                         dataSet.xData.push(metric.timestamp);
                         dataSet.yData.push(metric.value);
-                        config.dataAvailable = true;
+                        dataSet.dataAvailable = true;
 
                         if (metric.value > dataSet.upperLimit || metric.value < dataSet.lowerLimit) {
                             config.color = {pattern: ['red']};
@@ -415,7 +410,6 @@ angular.module('app')
                             dataSet.xData.splice(1, 1);
                             dataSet.yData.splice(1, 1);
                         }
-                        console.log("new dataSet: " + JSON.stringify(dataSet));
                     });
                 }
 
@@ -425,7 +419,6 @@ angular.module('app')
                 $scope.data = [];
 
                 $scope.$on('package:selected', function(event, pkg) {
-                    console.log("telemeetry received pkg: "+ JSON.stringify(pkg));
                     pkg.telemetry.forEach(function(telemetry) {
                        $scope.config[telemetry.name] = {
                            'chartId'      :  telemetry.name + "chart",
@@ -453,7 +446,6 @@ angular.module('app')
                     });
                     $scope.selectedPkg = pkg;
                     SensorData.subscribePkg(pkg, function(data) {
-                        console.log("PkgTelemetry received data: " + JSON.stringify(data));
                         $scope.$apply(function() {
                             addData(pkg, data);
                         });
@@ -478,7 +470,6 @@ angular.module('app')
                 var timers = [];
 
                 $scope.$on('vehicles:selected', function (event, vehicle) {
-                    console.log("mapping vehicle: " + JSON.stringify(vehicle));
                     timers.forEach(function (timer) {
                         $timeout.cancel(timer);
                     });
@@ -572,7 +563,6 @@ angular.module('app')
                     Shipments.getShipments(vehicle, function(shipments) {
                         $scope.shipments = shipments;
                     });
-                    console.log("retrieved shipments: " + JSON.stringify($scope.shipments));
                 });
 
 
@@ -658,15 +648,12 @@ angular.module('app')
                 }
 
                 $scope.selectShipment = function (shipment) {
-                    console.log("selecting shipment: " + JSON.stringify(shipment));
                     if ($scope.selectedShipment && (shipment.name == $scope.selectedShipment.name)) {
                         return;
                     }
                //   SensorData.unsubscribeAll();
                     $scope.selectedShipment = shipment;
-                    console.log("broadcasting package:selected");
                     $rootScope.$broadcast('package:selected', shipment);
-                //    SensorData.subscribe(shipment.pkgName.replace('assets', 'notification'), notificationListener, shipment.randomData);
 
                 };
 
@@ -735,14 +722,12 @@ angular.module('app')
                         truckType = 'warning';
                     }
 
-                    console.log("new dataSet: " + JSON.stringify(dataSet));
                 });
                 $scope.truckImageType = truckType;
             }
 
             $scope.$on('vehicles:selected', function(event, vehicle) {
                 $scope.selectedVehicle = vehicle;
-                console.log("vehicle panel: selected vehicle: " + JSON.stringify(vehicle));
                 vehicle.telemetry.forEach(function(telemetry) {
                     $scope.config[telemetry.name] = {
                         'chartId'      :  telemetry.metricName + "vehiclechart",
@@ -750,7 +735,6 @@ angular.module('app')
                         'thresholds'    : {'warning':80,'error':90},
                         'tooltipType'  : 'default'
                     };
-                    console.log("config: " + JSON.stringify($scope.config[telemetry.name]));
                     $scope.data[telemetry.name] = {
                         'used': 0,
                         'total': telemetry.max,
@@ -780,7 +764,6 @@ angular.module('app')
                 //     ]);
                 // }, 2000);
                 SensorData.subscribeVehicle(vehicle, function(data) {
-                    console.log("received vehicle data: " + JSON.stringify(data));
                     $scope.$apply(function() {
                         addData(vehicle, data);
                     });

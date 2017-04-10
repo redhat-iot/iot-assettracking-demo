@@ -7,9 +7,11 @@ angular.module('app')
         var factory = {},
             client = null,
             msgproto = null,
-            listeners = [];
+            listeners = [],
+            topicRegex = /Red-Hat\/([^\/]*)\/iot-demo\/([^\/]*)\/([^\/]*)$/;
 
-        function setFromISO8601(isostr) {
+
+            function setFromISO8601(isostr) {
             var parts = isostr.match(/\d+/g);
             return new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]));
         }
@@ -21,21 +23,22 @@ angular.module('app')
         }
 
         function onMessageArrived(message) {
-            console.log("message destname: " + message.destinationName);
             var destination = message.destinationName;
             var payload = message.payloadBytes;
             var decoded =  msgproto.decode(payload);
-
             // {"metric":[
             //   {"name":"Ambient","type":"FLOAT","floatValue":18.6299991607666},
             //   {"name":"Light","type":"FLOAT","floatValue":269.45001220703125},
             //   {"name":"Humidity","type":"FLOAT","floatValue":15.34000015258789}
             // ]}
+            var matches = topicRegex.exec(destination);
+            var objType = matches[2];
+            var objId = matches[3];
 
             listeners.filter(function(listener) {
-                return listener.topic == destination;
+                return (listener.objType == objType && listener.objId == objId);
             }).forEach(function(listener) {
-                var targetObj = listener.package || listener.vehicle;
+                var targetObj = listener.pkg || listener.vehicle;
                 var cb = listener.listener;
 
                 var data = [];
@@ -47,7 +50,7 @@ angular.module('app')
                         if (telMetricName == decodedMetric.name) {
                             data.push({
                                 name: telName,
-                                value: decodedMetric.floatValue.toFixed(1),
+                                value: decodedMetric.doubleValue.toFixed(1),
                                 timestamp: new Date()
                             });
                         }
@@ -74,7 +77,6 @@ angular.module('app')
                 if (err) throw err;
 
                 msgproto = root.lookup("kuradatatypes.KuraPayload");
-                console.log("proto: " + msgproto);
                 // connect the client
                 client.connect({
                     onSuccess:onConnect,
@@ -88,10 +90,11 @@ angular.module('app')
 
             var topicName = "Red-Hat/+/iot-demo/packages/" + pkg.sensor_id;
             client.subscribe(topicName);
-            console.log("subscribed to package: " + topicName);
             listeners.push({
                 pkg: pkg,
                 topic: topicName,
+                objType: 'packages',
+                objId: pkg.sensor_id,
                 listener: listener
             });
         };
@@ -100,10 +103,11 @@ angular.module('app')
 
             var topicName = "Red-Hat/+/iot-demo/trucks/" + vehicle.vin;
             client.subscribe(topicName);
-            console.log("subscribed to vehicle: " + topicName);
             listeners.push({
                 vehicle: vehicle,
                 topic: topicName,
+                objType: 'trucks',
+                objId: vehicle.vin,
                 listener: listener
             });
         };
@@ -114,7 +118,6 @@ angular.module('app')
             listeners = listeners.filter(function(listener) {
                 return (listener.vehicle.vin != vehicle.vin);
             });
-            console.log("unsubscribed from vehicle: " + topicName);
         };
 
         factory.unsubscribePackage = function (pkg) {
@@ -123,7 +126,6 @@ angular.module('app')
             listeners = listeners.filter(function(listener) {
                 return (listener.pkg.sensor_id != pkg.sensor_id);
             });
-            console.log("unsubscribed from package: " + topicName);
         };
 
 
