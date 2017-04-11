@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="$close()" aria-label="Close"><span aria-hidden="true">&times;</span>
+    </button>
+    <h2 class="modal-title">Telemetry History</h2>
+</div>
+<div class="modal-body">
+    <em>{{telemetry.name}} - {{pkg.desc}} - {{pkg.customer.name}}</em>
+    <div style="height: 200px">
+        <linechart  data="data" options="config"></linechart>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" ng-click="$close()">Close</button>
+</div>

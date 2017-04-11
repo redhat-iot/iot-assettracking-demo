@@ -124,7 +124,7 @@ public class UtilsEndpoint {
                 telemetry.add(new Telemetry("°C", 100.0, 0.0, "Temperature", "Ambient"));
                 telemetry.add(new Telemetry("%", 100.0, 0.0, "Humidity", "Humidity"));
                 telemetry.add(new Telemetry("lm", 2000.0, 1000.0, "Light", "Light"));
-                telemetry.add(new Telemetry("mmhg", 200, 100, "Pressure", "Pressure"));
+                telemetry.add(new Telemetry("inHg", 200, 100, "Pressure", "Pressure"));
 
                 Customer cust = customerCache.get(rand(COMPANIES));
 
@@ -135,7 +135,7 @@ public class UtilsEndpoint {
                 String sensorId = "pkg-" + j;
 
                 Shipment s = new Shipment(customerCache.get(rand(COMPANIES)),
-                        "Package " + j, rand(PKG_DESCS) +  " [" + cust.getName() + "]",
+                        "Package " + j, rand(PKG_DESCS),
                         sensorId, route, etd, eta, Math.random() * 2000, v);
 
                 s.setTelemetry(telemetry);

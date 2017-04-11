@@ -358,6 +358,8 @@ angular.module('app')
         ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Vehicles',
             function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Vehicles) {
 
+                $scope.vehicleQuery = '';
+
                 $scope.selectedVehicle = null;
 
                 $scope.vehicles = Vehicles.getVehicles();
@@ -366,9 +368,13 @@ angular.module('app')
                     $rootScope.$broadcast("resetAll");
                 };
 
-                $scope.isSelected = function(vehicle) {
-                    return $scope.selectedVehicle != null && $scope.selectedVehicle == vehicle;
+                $scope.isSelected = function (vehicle) {
+                    if (!$scope.selectedVehicle) {
+                        return false;
+                    }
+                    return $scope.selectedVehicle.vin == vehicle.vin;
                 };
+
 
                 $scope.selectVehicle = function(vehicle) {
                     $scope.selectedVehicle = vehicle;
@@ -383,66 +389,96 @@ angular.module('app')
             }])
 
     .controller("PkgTelemetryController",
-        ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Vehicles', 'APP_CONFIG',
-            function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Vehicles, APP_CONFIG) {
+        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData',
+            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData) {
+
+                var MAX_POINTS = 20;
 
                 function addData(pkg, data) {
-                    var MAX_POINTS = 20;
 
                     if (pkg != $scope.selectedPkg) {
                         return;
                     }
 
                     data.forEach(function(metric) {
-                        var dataSet = $scope.data[metric.name];
-                        var config = $scope.config[metric.name];
-                        dataSet.xData.push(metric.timestamp);
-                        dataSet.yData.push(metric.value);
-                        dataSet.dataAvailable = true;
+
+                        var dataSet = $scope.n3data[metric.name];
+                        var config = $scope.n3options[metric.name];
+
+                        dataSet.hasData = true;
+                        dataSet.dataset0.push({
+                            x: new Date(),
+                            val_0: metric.value
+                        });
+                        dataSet.value = metric.value;
+                        if (dataSet.dataset0.length > (MAX_POINTS + 1)) {
+                            // remove the earliest value
+                            dataSet.dataset0.splice(0, 1);
+                        }
 
                         if (metric.value > dataSet.upperLimit || metric.value < dataSet.lowerLimit) {
-                            config.color = {pattern: ['red']};
+                            config.warning = true;
+                            config.series[0].color = '#ec7a08';
                         } else {
-                            config.color = {};
-                        }
-                        if (dataSet.xData.length > (MAX_POINTS + 1)) {
-                            // remove the earliest value
-                            dataSet.xData.splice(1, 1);
-                            dataSet.yData.splice(1, 1);
+                            config.warning = false;
+                            config.series[0].color = '#1f77b4';
                         }
                     });
                 }
 
                 $scope.selectedPkg = null;
 
-                $scope.config = [];
-                $scope.data = [];
+                $scope.n3options = [];
+                $scope.n3data = [];
+
+                // $interval(function() {
+                //
+                // }, 2000);
+
 
                 $scope.$on('package:selected', function(event, pkg) {
                     pkg.telemetry.forEach(function(telemetry) {
-                       $scope.config[telemetry.name] = {
-                           'chartId'      :  telemetry.name + "chart",
-                           'title' : telemetry.name,
-                           'layout'       : 'large',
-                           'units'        : telemetry.units,
-                           'tooltipType'  : 'default'
-                       };
+                        $scope.n3options[telemetry.name] = {
+                            warning: false,
+                            series: [
+                                {
+                                    axis: "y",
+                                    dataset: "dataset0",
+                                    key: "val_0",
+                                    label: telemetry.name,
+                                    color: "#1f77b4",
+                                    type: ['area'],
+                                    id: 'mySeries0',
+                                    interpolation: {mode: "bundle", tension: 0.98}
+                                }
+                            ],
+                            axes: {
+                                x: {
+                                    key: "x",
+                                    type: 'date',
+                                    tickFormat: function(value, idx) {
+                                        return ($filter('date')(value, 'H:mm:ss'));
+                                    }
+                                }
+                            },
+                            margin: {
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 0
+                            }
+                        };
 
-                        var dates = ['dates' ];
-                        // for (var d = 20 - 1; d >= 0; d--) {
-                        //     dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
-                        // }
+                        $scope.n3data[telemetry.name] = {
+                            hasData: false,
+                            upperLimit:telemetry.max,
+                            lowerLimit:telemetry.min,
+                            value: 0,
+                            dataset0: [
 
-                        var levels = [telemetry.name];
+                            ]
+                        };
 
-                        $scope.data[telemetry.name] = {
-                            'total': 100,
-                            'xData': dates,
-                            'yData': levels,
-                            'upperLimit': telemetry.max,
-                            'lowerLimit': telemetry.min,
-                            'dataAvailable': false
-                       };
                     });
                     $scope.selectedPkg = pkg;
                     SensorData.subscribePkg(pkg, function(data) {
@@ -452,6 +488,104 @@ angular.module('app')
                     });
 
                 });
+
+                $scope.showHistory = function(telemetry) {
+
+                    if (!$scope.selectedPkg) {
+                        alert("You must choose a shipment!");
+                        return;
+                    }
+
+                    SensorData.getRecentData($scope.selectedPkg, telemetry, function(cbData) {
+                        $modal.open({
+                            templateUrl: 'partials/history.html',
+                            controller: 'HistoryController',
+                            size: 'lg',
+                            resolve: {
+                                pkg: function() {return $scope.selectedPkg},
+                                data: function() {
+                                    var newData = {
+                                        hasData: false,
+                                        upperLimit:telemetry.max,
+                                        lowerLimit:telemetry.min,
+                                        value: 0,
+                                        dataset0: []
+                                    };
+
+                                    cbData.forEach(function(pt) {
+                                        newData.dataset0.push({
+                                            x: new Date(pt.timestamp),
+                                            val_0: pt.value
+                                        });
+                                    });
+                                    return newData;
+                                },
+                                telemetry: function() {return telemetry},
+                                config: function() {
+                                    return {
+                                        series: [
+                                            {
+                                                axis: "y",
+                                                dataset: "dataset0",
+                                                key: "val_0",
+                                                label: telemetry.name,
+                                                color: "#1f77b4",
+                                                type: ['area'],
+                                                id: 'mySeries0',
+                                                interpolation: {mode: "bundle", tension: 0.98}
+                                            }
+                                        ],
+                                        axes: {
+                                            x: {
+                                                key: "x",
+                                                type: 'date',
+                                                tickFormat: function(value, idx) {
+                                                    return ($filter('date')(value, 'medium'));
+                                                }
+                                            }
+                                        },
+                                        margin: {
+                                            top: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            left: 0
+                                        },
+                                        symbols: [
+                                            {
+                                                type: 'hline',
+                                                value: telemetry.min,
+                                                color: '#FF0000',
+                                                axis: 'y'
+                                            },
+                                            {
+                                                type: 'hline',
+                                                value: telemetry.max,
+                                                color: '#FF0000',
+                                                axis: 'y'
+                                            }
+
+                                        ]
+
+                                    }
+                                }
+
+                            }
+                        });
+
+                    });
+
+
+                }
+            }])
+
+    .controller("HistoryController",
+        ['$scope', '$http', 'Notifications', 'SensorData', 'pkg', 'telemetry', 'data', 'config',
+            function ($scope, $http, Notifications, SensorData, pkg, telemetry, data, config) {
+
+                $scope.data = data;
+                $scope.telemetry = telemetry;
+                $scope.config = config;
+                $scope.pkg = pkg;
 
             }])
 
@@ -552,6 +686,8 @@ angular.module('app')
 
                     return count;
                 };
+
+                $scope.shipQuery = '';
 
                 $scope.shipments = null;
                 $scope.selectedShipment = null;
@@ -742,27 +878,6 @@ angular.module('app')
                     };
                 });
 
-                // // start some fakery
-                // $interval(function() {
-                //     addData(vehicle, [
-                //         {
-                //             name: 'RPM',
-                //             value: Math.floor(Math.random() * 4000)
-                //         },
-                //         {
-                //             name: 'Engine Temp',
-                //             value: Math.floor(Math.random() * 300)
-                //         },
-                //         {
-                //             name: 'Oil Pressure',
-                //             value: Math.floor(1000 + Math.random() * 1500)
-                //         },
-                //         {
-                //             name: 'Days Since Tune-up',
-                //             value: 340
-                //         }
-                //     ]);
-                // }, 2000);
                 SensorData.subscribeVehicle(vehicle, function(data) {
                     $scope.$apply(function() {
                         addData(vehicle, data);

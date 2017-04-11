@@ -23,6 +23,7 @@ app.get('/config.json', function (req, res, next) {
 app.use(express.static(path.join(__dirname, '/views')));
 app.use('/app', express.static(path.join(__dirname, '/app')));
 app.use('/bower_components', express.static(path.join(__dirname, '/bower_components')));
+app.use('/node_modules', express.static(path.join(__dirname, '/node_modules')));
 
 console.log("app config: " + JSON.stringify(appConfig));
 

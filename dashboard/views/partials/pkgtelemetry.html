@@ -1,12 +1,48 @@
 <div>
 
-    <div>
-        <div ng-repeat="telemetry in selectedPkg.telemetry track by $index">
+    <h2>Package Telemetry</h2>
+    <hr>
+    <em ng-if="selectedPkg">{{selectedPkg.desc}}({{selectedPkg.customer.name}})</em>
 
-            <div pf-trends-chart config="config[telemetry.name]" chart-data="data[telemetry.name]">
-            </div>
 
-        </div>
+    <!--<div pf-trends-chart config="config[telemetry.name]" chart-data="data[telemetry.name]">-->
+
+    <div ng-if="!selectedPkg">
+        <icon class="fa fa-info-circle"></icon>&nbsp;Choose a shipment to view its telemetry
     </div>
+
+    <div ng-repeat="telemetry in selectedPkg.telemetry track by $index">
+
+
+        <div ng-if="!n3data[telemetry.name].hasData">
+            <icon class="fa fa-2x fa-exclamation-triangle"></icon>&nbsp;Current {{telemetry.name}} unavailable (<a ng-click="showHistory(telemetry);">History</a>)
+        </div>
+
+        <div ng-if="n3data[telemetry.name].hasData">
+            <span>{{telemetry.name}}</span>
+            <span style="color: red;" ng-if="n3options[telemetry.name].warning">&nbsp;<icon title="{{telemetry.name}} out of bounds ({{telemetry.min}}{{telemetry.units}} < {{telemetry.name}} < {{telemetry.max}}{{telemetry.units}})" class="fa fa-exclamation-triangle"></icon></span>
+            <div style="float:right;">
+                <a ng-click="showHistory(telemetry);">History</a>
+            </div>
+        </div>
+        <div class="container-fluid" ng-if="n3data[telemetry.name].hasData">
+            <div class="row">
+                <div style="padding: 5px;" class="col-sm-10">
+                    <linechart style="height: 50px;" data="n3data[telemetry.name]" options="n3options[telemetry.name]"></linechart>
+                </div>
+                <div style="padding: 2px;" class="col-sm-2">
+                    <h3>{{n3data[telemetry.name].value}}{{telemetry.units}}</h3>
+                </div>
+            </div>
+            <!--<div ng-repeat="telemetry in selectedPkg.telemetry track by $index">-->
+        </div>
+
+
+
+    </div>
+
+
+
+
 </div>
 

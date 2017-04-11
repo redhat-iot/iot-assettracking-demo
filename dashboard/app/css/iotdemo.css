@@ -84,3 +84,12 @@
     display:         flex;
 }
 
+/* For telemetry charts */
+
+.chart-legend {
+    display: none;
+}
+
+.chart .axis {
+    display: none;
+}

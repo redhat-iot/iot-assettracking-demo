@@ -26,11 +26,6 @@ angular.module('app')
             var destination = message.destinationName;
             var payload = message.payloadBytes;
             var decoded =  msgproto.decode(payload);
-            // {"metric":[
-            //   {"name":"Ambient","type":"FLOAT","floatValue":18.6299991607666},
-            //   {"name":"Light","type":"FLOAT","floatValue":269.45001220703125},
-            //   {"name":"Humidity","type":"FLOAT","floatValue":15.34000015258789}
-            // ]}
             var matches = topicRegex.exec(destination);
             var objType = matches[2];
             var objId = matches[3];
@@ -137,42 +132,58 @@ angular.module('app')
             listeners = [];
         };
 
-        factory.getRecentData = function (pkgId, metric, startTime, endTime, limit, cb) {
-            // $http({
-            //     method: 'GET',
-            //     url: APP_CONFIG.EDC_REST_ENDPOINT + '/messages/searchByTopic?' +
-            //     'topic=' + pkgId +
-            //     '&startDate=' +startTime +
-            //     '&endDate=' +endTime +
-            //     '&limit=' + limit,
-            //     headers: {
-            //         'Authorization': auth
-            //     }
-            // }).then(function successCallback(response) {
-            //
-            //
-            //     var recentData = [];
-            //     if (!response.data.message) {
-            //         cb([]);
-            //         return;
-            //     }
-            //     response.data.message.forEach(function (msg) {
-            //         var timestamp = setFromISO8601(msg.receivedOn);
-            //         msg.payload.metrics.metric.forEach(function (metricObj) {
-            //             if (metricObj.name.toLowerCase() == metric) {
-            //                 var dataObj = {
-            //                     timestamp: timestamp.getTime()
-            //                 };
-            //                 dataObj[metricObj.name.toLowerCase()] = metricObj.value;
-            //                 recentData.push(dataObj);
-            //             }
-            //         });
-            //     });
-            //
-            //     cb(recentData);
-            // }, function errorCallback(response) {
-            //     Notifications.error("error fetching recent data: " + response.statusText);
-            // });
+        factory.getRecentData = function (pkg, telemetry, cb) {
+
+            var esUrl = "http://" + APP_CONFIG.ES_HOSTNAME + '.' +
+                $location.host().replace(/^.*?\.(.*)/g,"$1") + ':' + APP_CONFIG.ES_PORT + '/_search';
+
+            $http({
+                method: 'POST',
+                url: esUrl,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                data: {
+                    "size": 0,
+                    "aggs": {
+                        "my_date_histo": {
+                            "date_histogram": {
+                                "field": "timestamp",
+                                "interval": "5m"
+                            },
+                            "aggs": {
+                                "the_avg": {
+                                    "avg": {
+                                        "field": "metrics." + telemetry.metricName + ".dbl"
+                                    }
+                                },
+                                "the_movavg": {
+                                    "moving_avg": {
+                                        "buckets_path": "the_avg"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }).then(function successCallback(response) {
+
+                if (!response.data) {
+                    cb([]);
+                    return;
+                }
+
+                var recentData = [];
+                response.data.aggregations.my_date_histo.buckets.forEach(function (bucket) {
+                    if (bucket.the_movavg) {
+                        recentData.push({
+                            timestamp: bucket.key,
+                            value: bucket.the_movavg.value
+                        });
+                    }
+                });
+                cb(recentData);
+            }, function errorCallback(response) {
+                Notifications.error("error fetching recent data: " + response.statusText);
+            });
 
 
         };

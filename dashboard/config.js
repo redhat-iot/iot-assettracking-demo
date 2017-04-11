@@ -6,6 +6,9 @@ var config =
     BROKER_USERNAME: process.env.BROKER_USERNAME || "demo_username",
     BROKER_PASSWORD: process.env.BROKER_PASSWORD || "demo_password",
 
+    ES_HOSTNAME: (process.env.ES_NAME || 'elasticsearch') + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE,
+    ES_PORT: process.env.ES_PORT || 80,
+
     // hostname/port for DG proxy (no username/password required for demo)
     DATASTORE_REST_HOSTNAME: process.env.DATASTORE_PROXY_SERVICE + '-' + process.env.OPENSHIFT_BUILD_NAMESPACE,
     DATASTORE_REST_PORT: process.env.DATASTORE_REST_PORT || 80,
