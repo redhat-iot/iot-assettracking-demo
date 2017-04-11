@@ -13,6 +13,8 @@
     "ngmap": "1.17.3",
     "angular-bootstrap-switch": "0.5.1",
     "async": "1.5.2",
+    "protobuf": "6.6.3",
+    "paho-mqtt-js": "1.0.1",
     "angular-route": "1.5.11",
     "angular-sanitize": "1.5.11",
     "angular-moment": "1.0.0"
