@@ -21,6 +21,125 @@ angular.module('app')
 
             }])
 
+    .controller("ExecBizStateController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+
+                $scope.stateTimeFrame = 'Last Month';
+                var today = new Date();
+                var dates = ['dates'];
+                var yTemp = ['used'];
+                for (var d = 20 - 1; d >= 0; d--) {
+                    dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
+                    yTemp.push('');
+                }
+
+                var actuals = ["Retention", "Margin", "Facilities", "P/E Ratio", "Closed"];
+
+                function fill(data) {
+                    return data.map(function(v, idx) {
+                        if (idx == 0) {
+                            return v;
+                        } else {
+                            return 80 + Math.floor(Math.random() * 20);
+                        }
+                    });
+                }
+
+                $scope.setBizStatePeriod = function(period) {
+
+                    if (period == 'month') {
+                        $scope.stateTimeFrame = "Last Month";
+                    } else if (period == 'year') {
+                        $scope.stateTimeFrame = "Year to Date";
+                    } else {
+                        $scope.stateTimeFrame = "Beginning of Time";
+                    }
+
+                    $scope.bizStates.forEach(function(bizState) {
+                        bizState.data.yData = fill(bizState.data.yData);
+                    });
+                };
+
+                $scope.bizStates = actuals.map(function(name) {
+                    return {
+                        config: {
+                            'chartId'      : name.replace(/[^A-Za-z0-9]/g, ''),
+                            'layout'       : 'inline',
+                            'trendLabel'   : name,
+                            'tooltipType'  : 'percentage',
+                            'valueType'     : 'actual'
+                        },
+                        data: {
+                            'total': '100',
+                            'xData': dates,
+                            'yData':  fill(yTemp)
+
+                        }
+                    };
+                });
+
+
+
+
+            }])
+
+    .controller("ExecMaintainEventsController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+                $scope.footerConfig = {
+                    'iconClass' : 'fa fa-wrench',
+                    'text'      : 'View All Events',
+                    'callBackFn': function () {
+                        alert("Footer Callback Fn Called");
+                    }
+                };
+
+                $scope.filterConfig = {
+                    'filters' : [{label:'Last Year', value:'year'},
+                        {label:'Last Month', value:'month'},
+                        {label:'Last Week', value:'week'}],
+                    'callBackFn': function (f) {
+                        var yVals = ['Calls'];
+                        for (var d = 12 - 1; d >= 0; d--) {
+                            yVals.push(Math.round(Math.random() * 10));
+                        }
+                        $scope.mdata.yData = yVals;
+
+                    },
+                    'defaultFilter' : '1'
+                };
+
+                var today = new Date();
+                var dates = ['dates'];
+                var yVals = ['Calls'];
+                for (var d = 12 - 1; d >= 0; d--) {
+                    dates.push(new Date(today.getTime() - (d * 24 * 60 * 60 * 1000)));
+                    yVals.push(Math.round(Math.random() * 10));
+                }
+
+                //tooltip: [{"x":"2017-04-10T01:37:32.215Z","value":8,"id":"Calls","index":9,"name":"Calls"}]
+
+                $scope.mconfig = {
+                    'title'        : 'This Period',
+                    'layout'       : 'compact',
+                    'valueType'    : 'actual',
+                    'units'        : 'Events',
+                    'tooltipType'  : 'used',
+                    'tooltipFn': function (d) {
+                        return (d[0].value + " Calls on " + $filter('date')(d[0].x, 'mediumDate'))
+                    }
+                };
+
+                $scope.mdata = {
+                    'total': '250',
+                    'xData': dates,
+                    'yData': yVals
+                };
+
+
+            }])
+
     .controller("ExecFacilityUtilizationController",
         ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
             function ($scope, $http, $filter, Notifications, SensorData, Reports) {
@@ -90,8 +209,8 @@ angular.module('app')
             }])
 
     .controller("ExecTopFacilitiesController",
-        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
-            function ($scope, $http, $filter, Notifications, SensorData, Reports) {
+        ['$scope', '$modal', '$http', '$filter', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $modal, $http, $filter, Notifications, SensorData, Reports) {
 
                 $scope.facilities = Reports.getFacilities();
                 $scope.data = {};
@@ -99,12 +218,28 @@ angular.module('app')
                 $scope.units = "";
                 $scope.donutData = {};
                 $scope.donutConfig = {};
+                $scope.facTimeFrame = "Last Month";
+
+                $scope.setFacPeriod = function(period) {
+                    $scope.facPeriod = period;
+                    switch (period) {
+                        case 'year':
+                            $scope.facTimeFrame = "Year to Date";
+                            break;
+                        case 'month':
+                            $scope.facTimeFrame = "Last Month";
+                            break;
+                        default:
+                            $scope.facTimeFrame = "Beginning of Time";
+                    }
+                };
 
                 var colorPal = [
                     patternfly.pfPaletteColors.blue,
                     patternfly.pfPaletteColors.green,
                     patternfly.pfPaletteColors.orange,
-                    patternfly.pfPaletteColors.red
+                    patternfly.pfPaletteColors.red,
+                    '#3B0083'
                 ];
 
                 function processFacilities(facilities) {
@@ -146,6 +281,19 @@ angular.module('app')
                     donutConfig.bindto = '#donut-chart-8';
                     donutConfig.tooltip = {show: true};
                     donutConfig.data = $scope.donutData;
+                    donutConfig.data.columns = donutConfig.data.columns.slice(0, 5);
+                    donutConfig.data.onclick = function (d) {
+                        var facName = d.name;
+                        var foundFacility = null;
+                        facilities.forEach(function(f) {
+                            if (f.name == facName) {
+                                foundFacility = f;
+                            }
+                        });
+                        if (foundFacility) {
+                            $scope.viewFacility(foundFacility);
+                        }
+                    };
 
                     donutConfig.legend = {
                         show: true,
@@ -171,6 +319,56 @@ angular.module('app')
                     }
                 });
 
+                $scope.viewFacility = function(facility) {
+                    $modal.open({
+                        templateUrl: 'partials/facility.html',
+                        controller: 'FacilityViewController',
+                        size: 'lg',
+                        resolve: {
+                            facility: function () {
+                                return facility;
+                            }
+                        }
+                    });
+
+                }
+            }])
+
+    .controller("FacilityViewController",
+        ['$scope', '$http', '$filter', 'Notifications', 'SensorData', 'facility', 'APP_CONFIG',
+            function ($scope, $http, $filter, Notifications, SensorData, facility, APP_CONFIG) {
+                $scope.facility = facility;
+                $scope.mapsUrl = 'https://maps.googleapis.com/maps/api/js?key=' + APP_CONFIG.GOOGLE_MAPS_API_KEY;
+
+
+                $scope.size = {
+                    "name": 'Sq. Ft.',
+                    "title": 'Sq. Ft.',
+                    "count": $filter('number')(facility.size, 1),
+                    "iconClass": 'fa fa-2x fa-arrows',
+                    "notifications": [{
+                        "iconClass":"pficon pficon-ok"
+                    }]
+                };
+                $scope.age = {
+                    "name": 'Years',
+                    "title": 'Years',
+                    "count": "13.4",
+                    "iconClass": 'fa fa-2x fa-calendar',
+                    "notifications": [{
+                        "iconClass":"pficon pficon-warning-triangle-o"
+                    }]
+                };
+                $scope.utilization = {
+                    "name": '%',
+                    "title": '%',
+                    "count": Math.round(facility.utilization * 100 * 2.5),
+                    "iconClass": 'fa fa-2x fa-line-chart',
+                    "notifications": [{
+                        "iconClass":"pficon pficon-ok"
+                    }]
+                };
+
             }])
 
     .controller("ExecBizTrendsController",
@@ -179,7 +377,11 @@ angular.module('app')
 
         $scope.chartConfig = patternfly.c3ChartDefaults().getDefaultAreaConfig();
 
+        $scope.selected = 'fuel';
+        $scope.period = 'year';
+
         $scope.setPeriod = function(period) {
+            $scope.period = period;
             xPoints = ['x'];
             currentUse = ['Current Period'];
             previousUse = ['Previous Period'];
@@ -231,10 +433,29 @@ angular.module('app')
             $scope.chartConfig.tooltip = {
                 format: {
                     value: function (value, ratio, id, index) {
-                        return ( value.toFixed(1) + " m.p.g.");
+                        switch ($scope.selected) {
+                            case 'fuel':
+                                return ( value.toFixed(1) + " m.p.g.");
+                            case 'value':
+                                return ( '$' + value.toFixed(2));
+                            case 'timeperf':
+                            case 'custsat':
+                                return (value.toFixed(1) + '%');
+                            default:
+                                return value.toFixed(1);
+                        }
                     }
                 }
             };
+        };
+
+        $scope.getSelected = function() {
+            return $scope.selected;
+        };
+
+        $scope.setSelected = function(selected) {
+            $scope.selected = selected;
+            $scope.setPeriod($scope.period);
         };
 
 
@@ -358,8 +579,6 @@ angular.module('app')
         ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Vehicles',
             function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Vehicles) {
 
-                $scope.vehicleQuery = '';
-
                 $scope.selectedVehicle = null;
 
                 $scope.vehicles = Vehicles.getVehicles();
@@ -368,8 +587,9 @@ angular.module('app')
                     $rootScope.$broadcast("resetAll");
                 };
 
-                $scope.isSelected = function (vehicle) {
-                    if (!$scope.selectedVehicle) {
+                $scope.isVehicleSelected = function (vehicle) {
+
+                    if (!$scope.selectedVehicle || !vehicle) {
                         return false;
                     }
                     return $scope.selectedVehicle.vin == vehicle.vin;
@@ -603,6 +823,8 @@ angular.module('app')
 
                 var timers = [];
 
+                var displayer = null;
+
                 $scope.$on('vehicles:selected', function (event, vehicle) {
                     timers.forEach(function (timer) {
                         $timeout.cancel(timer);
@@ -612,6 +834,12 @@ angular.module('app')
                     var directionsDisplay = new google.maps.DirectionsRenderer();
                     var directionsService = new google.maps.DirectionsService();
 
+                    if (displayer) {
+                        displayer.setMap(null);
+                    }
+                    displayer = directionsDisplay;
+
+                    directionsDisplay.setMap(null);
                     var request = {
                         origin: vehicle.origin.address,
                         destination: vehicle.destination.address,
@@ -743,7 +971,7 @@ angular.module('app')
                 };
 
                 $scope.isSelected = function (shipment) {
-                    if (!$scope.selectedShipment) {
+                    if (!$scope.selectedShipment || !shipment) {
                         return false;
                     }
                     return $scope.selectedShipment.name == shipment.name;
@@ -841,6 +1069,7 @@ angular.module('app')
             $scope.truckImageType = 'plain';
             $scope.config = [];
             $scope.data = [];
+            $scope.noLabel = "none";
 
             function addData(vehicle, data) {
 
@@ -869,7 +1098,11 @@ angular.module('app')
                         'chartId'      :  telemetry.metricName + "vehiclechart",
                         'units'        : telemetry.units,
                         'thresholds'    : {'warning':80,'error':90},
-                        'tooltipType'  : 'default'
+                        'tooltipType'  : 'default',
+                        'centerLabelFn': function () {
+                            return $scope.data[telemetry.name].used + " " + telemetry.units;
+                        }
+
                     };
                     $scope.data[telemetry.name] = {
                         'used': 0,

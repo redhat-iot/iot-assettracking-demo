@@ -16,10 +16,10 @@
     <h2>Business Trends</h2>
 
     <ul class="nav nav-tabs nav-tabs-pf">
-        <li class="active"><a ng-click="setData('fuel');">Fuel Efficiency</a></li>
-        <li><a ng-click="setData('value');">Value Under Transport</a></li>
-        <li><a ng-click="setData('timeperf');">On-Time Performance</a></li>
-        <li><a ng-click="setData('custsat');">Customer Satisfaction</a></li>
+        <li ng-class="{ active: (getSelected() == 'fuel')}"><a ng-click="setSelected('fuel');">Fuel Efficiency</a></li>
+        <li ng-class="{ active: (getSelected() == 'value')}"><a ng-click="setSelected('value');">Value Under Transport</a></li>
+        <li ng-class="{ active: (getSelected() == 'timeperf')}"><a ng-click="setSelected('timeperf');">On-Time Performance</a></li>
+        <li ng-class="{ active: (getSelected() == 'custsat')}"><a ng-click="setSelected('custsat');">Customer Satisfaction</a></li>
     </ul>
 
     <div pf-c3-chart id="chartId" config="chartConfig" get-chart-callback="getChart"></div>

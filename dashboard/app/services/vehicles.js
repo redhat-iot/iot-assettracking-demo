@@ -21,7 +21,6 @@ angular.module('app')
             url: configRestEndpoint + "/"
         }).then(function (response) {
             vehicles = response.data;
-            console.log("vehicles: " + JSON.stringify(vehicles));
             if ((vehicles == undefined) || (vehicles.constructor !== Array)) {
                 Notifications.error("Error fetching Vehicle Configuration (invalid data). Reload to retry");
                 return;

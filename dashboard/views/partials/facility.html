@@ -1,0 +1,58 @@
+<!--private String name;-->
+<!--private String address;-->
+<!--private LatLng location;-->
+<!--private double utilization;-->
+<!--private double size;-->
+
+<div class="modal-header">
+    <button type="button" class="close" ng-click="$close()" aria-label="Close"><span aria-hidden="true">&times;</span>
+    </button>
+    <h2 class="modal-title">Facility: {{facility.name}}&nbsp;&nbsp;<a target="_blank"
+                                                          href="http://maps.google.com/?q={{facility.address}}"><icon class="fa fa-map"></icon></a>
+</div>
+<div class="modal-body container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <center>
+
+                <img style="width: 200px;" src="app/imgs/plan.jpg" alt="Floor Plan" class="img-rounded">
+            </center>
+        </div>
+        <div class="col-md-6">
+            <center>
+                <h2>{{facility.name}} By The Numbers</h2>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div pf-aggregate-status-card status="size" show-top-border="true"></div>
+                    </div>
+                    <div class="col-md-4" pf-aggregate-status-card status="age" show-top-border="true"></div>
+                    <div class="col-md-4" pf-aggregate-status-card status="utilization" show-top-border="true"></div>
+                </div>
+                <!--<p><span style="font-size: 3em">{{facility.size | number:2}}</span> sq. ft. total heated</p>-->
+                <!--<p><span style="font-size: 3em">13.4</span> years old</p>-->
+            </center>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="facidmap" map-lazy-load="https://maps.google.com/maps/api/js" map-lazy-load-params="{{mapsUrl}}"
+                 id="facilitymap">
+                <ng-map id="facmap" oom="19" center="300 West 23rd Avenue N. Kansas City, MO 64116">
+                    <street-view-panorama
+                            click-to-go="false"
+                            disable-default-u-i="false"
+                            disable-double-click-zoom="false"
+                            fov="{heading: 360, pitch: 0}"
+                            scrollwheel="false"
+                            enable-close-button="true"
+                            visible="true">
+                    </street-view-panorama>
+                </ng-map>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" ng-click="$close()">Close</button>
+</div>

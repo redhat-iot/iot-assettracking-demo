@@ -10,7 +10,7 @@
     "patternfly": "3.18.1",
     "angular-patternfly": "3.18.1",
     "angular-websocket": "2.0.0",
-    "ngmap": "1.17.3",
+    "ngmap": "1.18.4",
     "angular-bootstrap-switch": "0.5.1",
     "async": "1.5.2",
     "protobuf": "6.6.3",

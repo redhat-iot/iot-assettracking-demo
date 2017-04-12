@@ -11,10 +11,11 @@
 
     <div class="row">
         <div ng-repeat="telemetry in selectedVehicle.telemetry track by $index">
-            <div class="col-md-3">
-                <div class="center-block" pf-donut-pct-chart config="config[telemetry.name]" data="data[telemetry.name]" center-label="used" chart-height="150">
+            <div class="col-md-4">
+                <h2 style="text-align: center;">{{telemetry.name}}</h2>
+                <hr style="margin-top: 2px; margin-bottom: 2px;">
+                <div class="center-block" pf-donut-pct-chart config="config[telemetry.name]" data="data[telemetry.name]" center-label="noLabel" chart-height="150">
                 </div>
-
             </div>
         </div>
     </div>

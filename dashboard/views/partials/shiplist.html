@@ -1,4 +1,4 @@
-<div class="shiplist">
+<div id="shiplist">
 
     <h2>Client Shipments</h2>
     <hr>
@@ -24,14 +24,13 @@
         </form>
     </div>
 
-    <table ng-if="shipments.length > 0" class="table table-striped table-bordered table-hover" id="myTable">
+    <table ng-if="shipments.length > 0" class="table table-striped table-bordered table-hover" id="myShipTable">
         <thead>
         <tr>
             <th>Client</th>
-            <th>Origin</th>
-            <th>Destination</th>
+            <th>Route</th>
             <th>ETA</th>
-            <th>Alerts</th>
+            <th>Status</th>
         </tr>
         </thead>
         <tbody>
@@ -41,20 +40,18 @@
             <td data-toggle="tooltip" data-placement="right" title="{{shipment.customer.name}}">
                 {{shipment.customer.name}}({{shipment.desc}})
             </td>
-            <td><a target="_blank" href="http://maps.google.com/?q={{shipment.route[0].address}}">{{shipment.route[0].address}}</a>
-            </td>
-            <td><a target="_blank"
+
+
+            <td><icon class="fa fa-arrow-circle-right"></icon>&nbsp;<a target="_blank"
+                   href="http://maps.google.com/?q={{shipment.route[0].address}}">{{shipment.route[0].address}}</a><br>
+                <icon class="fa fa-flag-checkered"></icon>&nbsp;<a target="_blank"
                    href="http://maps.google.com/?q={{shipment.route[shipment.route.length-1].address}}">{{shipment.route[shipment.route.length-1].address}}</a>
             </td>
-            <td>{{shipment.eta | amCalendar:referenceTime:formats}}</td>
-            <td data-toggle="modal"
-                data-target="#alertsModal">
-                <div style="margin: 5px;text-align: center">
-                        <span ng-repeat="type in ['danger', 'warning', 'success', 'info'] track by $index"
-                              class="label label-pill label-{{getAlertCount(shipment.pkgId, type) > 0 ? type : 'default'}}">&nbsp;{{getAlertCount(shipment.pkgId, type) > 0 ? getAlertCount(shipment.pkgId, type) : '•' }}&nbsp;</span>
 
-                </div>
-            </td>
+
+            <td>{{shipment.eta | amCalendar:referenceTime:formats}}</td>
+            <td><center><icon class="pficon fa-2x pficon-ok"></icon></center></td>
+
         </tr>
         </tbody>
     </table>

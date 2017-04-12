@@ -2,13 +2,13 @@
 
     <div style="float: right;" class="dropdown">
         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-            Last Year
+            {{facTimeFrame}}
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setPeriod('year');">Last Month</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Year To Date</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Beginning of Time</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setFacPeriod('month');">Last Month</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setFacPeriod('year');">Year To Date</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="setFacPeriod('all');">Beginning of Time</a></li>
         </ul>
     </div>
 

@@ -12,35 +12,35 @@
                 <div class="input-group">
                     <div class="input-group-addon"><i class="fa fa-search"></i>
                     </div>
-                    <input ng-model="vehicleQuery" type="text" placeholder="Find..." autofocus>
+                    <input ng-model="aquery" type="text" placeholder="Find..." autofocus>
                 </div>
             </div>
         </form>
     </div>
 
-    <div ng-if="vehicles.length > 0" style="overflow: auto;">
+    <div ng-if="vehicles.length > 0">
 
-        <table class="table table-striped table-bordered table-hover" id="myTable">
+        <table class="table table-striped table-bordered table-hover" id="myVehiclesTable">
             <thead>
             <tr>
                 <th>Vehicle ID</th>
-                <th>Origin</th>
-                <th>Destination</th>
+                <th>Route</th>
                 <th>ETA</th>
-                <th>Alerts</th>
-                <th>Actions</th>
+                <th>Status</th>
             </tr>
             </thead>
             <tbody>
 
-            <tr ng-class="{ active: isSelected(vehicle)}" ng-click="selectVehicle(vehicle);"
-                ng-repeat="vehicle in vehicles | filter:vehicleQuery | limitTo:10 track by vehicle.vin">
+            <tr ng-class="{ active: isVehicleSelected(vehicle)}" ng-click="selectVehicle(vehicle);"
+                ng-repeat="vehicle in vehicles | filter:aquery | limitTo:5">
                 <td data-toggle="tooltip" data-placement="right" title="{{vehicle.desc}}">{{vehicle.vin}}</td>
-                <td>{{vehicle.origin.address}}</td>
-                <td>{{vehicle.destination.address}}</td>
+                <td><icon class="fa fa-arrow-circle-right"></icon>&nbsp;<a target="_blank"
+                           href="http://maps.google.com/?q={{vehicle.origin.address}}">{{vehicle.origin.address}}</a><br>
+                    <icon class="fa fa-flag-checkered"></icon>&nbsp;<a target="_blank"
+                           href="http://maps.google.com/?q={{vehicle.destination.address}}">{{vehicle.destination.address}}</a>
+                </td>
                 <td>{{vehicle.eta | date:'medium'}}</td>
-                <td>BLANK</td>
-                <td>BLANK</td>
+                <td><center><icon class="pficon fa-2x pficon-ok"></icon></center></td>
             </tr>
             </tbody>
         </table>
