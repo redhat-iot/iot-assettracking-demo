@@ -349,7 +349,7 @@ public class UtilsEndpoint {
             "Washington, D.C.",
             "Virginia Beach, VA",
             "New York, NY",
-            "Jacksonvilla, FL"
+            "Jacksonville, FL"
     };
 
     public static final String[] DESTS = new String[]{

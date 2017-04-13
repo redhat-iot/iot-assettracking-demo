@@ -909,7 +909,11 @@ objects:
             value: ${DATASTORE_PORT}
           - name: DATASTORE_CACHE
             value: ${DATASTORE_CACHE}
-          image: datastore-proxy
+           - name: BROKER_USERNAME
+             value: ${BROKER_USERNAME}
+           - name: BROKER_PASSWORD
+             value: ${BROKER_PASSWORD}
+         image: datastore-proxy
           imagePullPolicy: Always
           lifecycle:
             preStop:

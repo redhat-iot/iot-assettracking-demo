@@ -537,44 +537,6 @@ angular.module('app')
 
 
 
-    .controller("AlertListController",
-        ['$timeout', '$scope', '$http', 'Notifications', 'SensorData', 'Alerts',
-            function ($timeout, $scope, $http, Notifications, SensorData, Alerts) {
-
-                $scope.alerts = Alerts.getAlerts();
-
-                $scope.$on('alert', function (event, alert) {
-                    $scope.alerts = Alerts.getAlerts();
-                });
-
-                Alerts.addAlert("system", "system", "info", "Startup", "Fetching shipments...");
-                Alerts.addAlert("system", "system", "info", "Startup", "Initializing Sensor Telemetry...");
-                Alerts.addAlert("system", "system", "success", "System Initialized", "System is Ready");
-
-
-                $scope.getAlertCount = function (pkgName, type) {
-                    if ($scope.alerts == null) {
-                        return 0;
-                    }
-                    return $scope.alerts.filter(function (alert) {
-                        if (alert == null) return false;
-                        return ((alert.pkgName == pkgName) && (alert.type == type));
-                    }).length;
-                };
-
-                $scope.clearAlerts = function () {
-                    Alerts.clearAlerts();
-                    $scope.alerts = [];
-                };
-                $scope.addListener = function (l) {
-                    SensorData.addListener(l);
-                };
-                $scope.removeListener = function (l) {
-                    SensorData.removeListener(l);
-                };
-
-            }])
-
     .controller("VehiclesListController",
         ['$timeout', '$rootScope', '$scope', '$http', 'Notifications', 'SensorData', 'Vehicles',
             function ($timeout, $rootScope, $scope, $http, Notifications, SensorData, Vehicles) {
@@ -606,6 +568,9 @@ angular.module('app')
                     $scope.vehicles = Vehicles.getVehicles();
                 });
 
+                $scope.$on("vehicle:alert", function(evt, al) {
+                    alert("ALERT: " + JSON.stringify(al));
+                })
             }])
 
     .controller("PkgTelemetryController",
@@ -700,6 +665,10 @@ angular.module('app')
                         };
 
                     });
+                    if ($scope.selectedPkg) {
+                        SensorData.unsubscribePackage($scope.selectedPkg);
+                    }
+
                     $scope.selectedPkg = pkg;
                     SensorData.subscribePkg(pkg, function(data) {
                         $scope.$apply(function() {
@@ -901,19 +870,8 @@ angular.module('app')
 
             }])
     .controller("ShipListController",
-        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Shipments", "Alerts",
-            function ($rootScope, $scope, $http, Notifications, SensorData, Shipments, Alerts) {
-                $scope.getAlertCount = function (pkgName, type) {
-                    if ($scope.shipalerts == null) {
-                        return 0;
-                    }
-                    var count = $scope.shipalerts.filter(function (alert) {
-                        if (alert == null) return false;
-                        return ((alert.pkgName == pkgName) && (alert.type == type));
-                    }).length;
-
-                    return count;
-                };
+        ['$rootScope', '$scope', '$http', 'Notifications', "SensorData", "Shipments",
+            function ($rootScope, $scope, $http, Notifications, SensorData, Shipments) {
 
                 $scope.shipQuery = '';
 
@@ -929,46 +887,9 @@ angular.module('app')
                     });
                 });
 
-
-
-                $scope.isAlerted = function (pkgName) {
-
-                    for (var i = 0; i < $scope.shipments.length; i++) {
-                        var ship = $scope.shipments[i];
-                        if (ship.name == pkgName && ship.indicator) {
-                            return ship.indicator;
-                        }
-                    }
-                    return false;
-                };
-
-                $scope.clearAlert = function (shipment) {
-                    if (confirm("Click OK to clear this Alert.")) {
-                        var topic = shipment.name.replace('assets', 'notification');
-                        var payload = {
-                            metrics: {
-                                metric: [
-                                    {
-                                        name: 'red',
-                                        type: 'boolean',
-                                        value: false
-                                    },
-                                    {
-                                        name: 'green',
-                                        type: 'boolean',
-                                        value: false
-                                    }
-                                ]
-                            }
-                        };
-
-                        SensorData.publish(topic, payload, function () {
-                            $scope.selectedShipment.indicator = undefined;
-                        }, function (err) {
-                            Notifications.error(err.statusText + ": " + err.data.message);
-                        });
-                    }
-                };
+                $scope.$on("package:alert", function(evt, al) {
+                    alert("PACKAGE ALERT: " + JSON.stringify(al));
+                })
 
                 $scope.isSelected = function (shipment) {
                     if (!$scope.selectedShipment || !shipment) {
@@ -996,17 +917,6 @@ angular.module('app')
                         // we know of no shipment that matches the id from the data message
                         return;
                     }
-                    if (data.red) {
-                        Alerts.addAlert(shipment.name, shipment.name, "danger", "Indicator", "RED Sensor Indicator");
-                        shipment.indicator = 'red';
-                    } else if (data.green) {
-                        Alerts.addAlert(shipment.name, shipment.name, "success", "Indicator", "GREEN Sensor Indicator");
-                        shipment.indicator = 'green';
-                    } else {
-                        shipment.indicator = undefined;
-                    }
-                    if (!shipment.randomData) {
-                    }
 
                     $scope.$apply();
                 }
@@ -1023,7 +933,7 @@ angular.module('app')
 
                 // TODO: alerts should come from server eventually...
                 $scope.$on('alert', function (event, alert) {
-                    $scope.shipalerts = Alerts.getAlerts();
+
                 });
 
             }])
@@ -1092,6 +1002,9 @@ angular.module('app')
             }
 
             $scope.$on('vehicles:selected', function(event, vehicle) {
+                if ($scope.selectedVehicle) {
+                    SensorData.unsubscribeVehicle($scope.selectedVehicle);
+                }
                 $scope.selectedVehicle = vehicle;
                 vehicle.telemetry.forEach(function(telemetry) {
                     $scope.config[telemetry.name] = {

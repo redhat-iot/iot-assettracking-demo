@@ -13,7 +13,20 @@ angular.module('app')
 		return vehicles;
 	};
 
-	factory.reset = function() {
+
+    // this.getIconName = function(type) {
+    //     if (type == 'danger') {
+    //         return 'pficon-error-circle-o';
+    //     } else if (type == 'warning') {
+    //         return 'pficon-warning-triangle-o';
+    //     } else if (type == 'info') {
+    //         return 'pficon-info';
+    //     } else if (type == 'success') {
+    //         return 'pficon-ok'
+    //     }
+    // }
+
+    factory.reset = function() {
 
         // get config
         $http({

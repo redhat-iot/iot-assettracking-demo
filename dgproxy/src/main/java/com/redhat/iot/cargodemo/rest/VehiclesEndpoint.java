@@ -15,8 +15,10 @@ package com.redhat.iot.cargodemo.rest;/*
  * limitations under the License.
  */
 
+import com.redhat.iot.cargodemo.model.Alert;
 import com.redhat.iot.cargodemo.model.Customer;
 import com.redhat.iot.cargodemo.model.Vehicle;
+import com.redhat.iot.cargodemo.service.AlertsService;
 import com.redhat.iot.cargodemo.service.DGService;
 
 import javax.inject.Inject;
@@ -38,6 +40,9 @@ public class VehiclesEndpoint {
 
     @Inject
     DGService dgService;
+
+    @Inject
+    AlertsService alertsService;
 
     @GET
     @Path("/{id}")
@@ -64,6 +69,22 @@ public class VehiclesEndpoint {
             .collect(Collectors.toList());
 
     }
+
+    @GET
+    @Path("/{vin}/alerts")
+    @Produces({"application/json"})
+    public List<Alert> getAlerts(@PathParam("vin") String vin) {
+
+        Map<String, Vehicle> cache = dgService.getVehicles();
+        List<Alert> alerts = alertsService.getAlerts();
+
+        Vehicle v = cache.get(vin);
+
+        return alerts.stream()
+                .filter(a -> vin.equals(a.getVin()))
+                .collect(Collectors.toList());
+    }
+
 
 }
 

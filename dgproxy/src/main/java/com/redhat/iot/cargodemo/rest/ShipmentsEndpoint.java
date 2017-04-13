@@ -17,6 +17,7 @@ package com.redhat.iot.cargodemo.rest;/*
 
 import com.redhat.iot.cargodemo.model.Shipment;
 import com.redhat.iot.cargodemo.model.Vehicle;
+import com.redhat.iot.cargodemo.service.AlertsService;
 import com.redhat.iot.cargodemo.service.DGService;
 
 import javax.inject.Inject;
