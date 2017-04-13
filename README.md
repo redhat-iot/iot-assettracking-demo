@@ -43,6 +43,14 @@ oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -
 
 You can monitor the build with `oc status` or watch the deployments using the OpenShift web console.
 
+If you see some components with "No Deployments" or are not building, you may need to add imagestream
+definitions for ``wildfly`` and ``jboss-datagrid``. To do so, run these commands:
+
+```
+oc create -n openshift -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/jboss-image-streams.json
+oc create -n openshift -f https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json
+```
+
 Once everything is up and running, you can access the demo using the URL of the `dashboard` route,
 for example `http://dashboard-redhat-iot.domain`
 
