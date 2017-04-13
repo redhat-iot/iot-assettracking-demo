@@ -16,7 +16,6 @@ package com.redhat.iot.cargodemo.rest;/*
  */
 
 import com.redhat.iot.cargodemo.model.Alert;
-import com.redhat.iot.cargodemo.model.Customer;
 import com.redhat.iot.cargodemo.model.Vehicle;
 import com.redhat.iot.cargodemo.service.AlertsService;
 import com.redhat.iot.cargodemo.service.DGService;
@@ -80,9 +79,13 @@ public class VehiclesEndpoint {
 
         Vehicle v = cache.get(vin);
 
-        return alerts.stream()
+        List<Alert> finalAlerts = alerts.stream()
                 .filter(a -> vin.equals(a.getVin()))
                 .collect(Collectors.toList());
+
+        alertsService.clearAlertsForVehicle(v);
+
+        return finalAlerts;
     }
 
 

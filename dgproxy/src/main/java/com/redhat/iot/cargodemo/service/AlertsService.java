@@ -3,8 +3,6 @@ package com.redhat.iot.cargodemo.service;
 import com.redhat.iot.cargodemo.model.*;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.infinispan.client.hotrod.RemoteCacheManager;
-import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class AlertsService implements MqttCallback {
 
-    private List<Alert> alerts = Collections.synchronizedList(new ArrayList<>());
+    final private List<Alert> alerts = Collections.synchronizedList(new ArrayList<>());
 
     @Inject
     DGService dgService;
@@ -35,6 +33,20 @@ public class AlertsService implements MqttCallback {
 
     public void clearAlerts() {
         alerts.clear();
+    }
+
+    public void clearAlertsForVehicle(Vehicle v) {
+        synchronized (alerts) {
+            List<Alert> toRemove = new ArrayList<>();
+            for (Alert alert : alerts) {
+                if (alert.getVin().equals(v.getVin())) {
+                    toRemove.add(alert);
+                }
+            }
+            for (Alert toRemoveAlert: toRemove) {
+                alerts.remove(toRemoveAlert);
+            }
+        }
     }
 
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
