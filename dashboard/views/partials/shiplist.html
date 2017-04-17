@@ -50,7 +50,10 @@
 
 
             <td>{{shipment.eta | amCalendar:referenceTime:formats}}</td>
-            <td><center><icon class="pficon fa-2x pficon-ok"></icon></center></td>
+            <td><center>
+                <icon ng-if="shipment.status == 'ok'" class="pficon fa-2x pficon-ok"></icon>
+                <icon ng-if="shipment.status != 'ok'" title="Package sensor {{shipment.status}} detected; vehicle operator notified" class="pficon fa-2x pficon-warning-triangle-o"></icon>
+            </center></td>
 
         </tr>
         </tbody>

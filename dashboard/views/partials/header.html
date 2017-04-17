@@ -13,7 +13,10 @@
       <div class="collapse navbar-collapse navbar-collapse-1">
         <ul class="nav navbar-nav navbar-utility">
           <li>
-            <a ng-href="" ng-click="resetAll();"><span class="fa fa-refresh"></span></a>
+            <a ng-href="" ng-click="cascadingAlert();"><span title="Simulate Cascading Failure" class="fa fa-bolt"></span></a>
+          </li>
+          <li>
+            <a ng-href="" ng-click="resetAll();"><span title="Reset Demo Data" class="fa fa-refresh"></span></a>
           </li>
           <li>
             <a ng-href="#/"><span class="fa fa-truck"></span>&nbsp;{{shipmentCount}} Shipment(s)</a>

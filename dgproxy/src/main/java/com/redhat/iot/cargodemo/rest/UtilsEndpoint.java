@@ -99,9 +99,9 @@ public class UtilsEndpoint {
             v.setDestination(v_dest);
 
             List<Telemetry> vehicleTelemetry = new ArrayList<>();
-            vehicleTelemetry.add(new Telemetry("°C", 300, 0.0, "Engine Temp", "temp"));
-            vehicleTelemetry.add(new Telemetry("rpm", 3500, 0.0, "RPM", "rpm"));
-            vehicleTelemetry.add(new Telemetry("psi", 2000.0, 1000.0, "Oil Pressure", "oilpress"));
+            vehicleTelemetry.add(new Telemetry("°C", 250.0, 150.0, "Engine Temp", "temp"));
+            vehicleTelemetry.add(new Telemetry("rpm", 2200.0, 500.0, "RPM", "rpm"));
+            vehicleTelemetry.add(new Telemetry("psi", 80.0, 30.0, "Oil Pressure", "oilpress"));
             v.setTelemetry(vehicleTelemetry);
 
             Date v_eta = new Date(new Date().getTime() + DAY_IN_MS + (long)(Math.random() * DAY_IN_MS * 2));
@@ -121,10 +121,10 @@ public class UtilsEndpoint {
                 route.add(p_dest);
 
                 List<Telemetry> telemetry = new ArrayList<>();
-                telemetry.add(new Telemetry("°C", 100.0, 0.0, "Temperature", "Ambient"));
-                telemetry.add(new Telemetry("%", 100.0, 0.0, "Humidity", "Humidity"));
-                telemetry.add(new Telemetry("lm", 2000.0, 1000.0, "Light", "Light"));
-                telemetry.add(new Telemetry("inHg", 200, 100, "Pressure", "Pressure"));
+                telemetry.add(new Telemetry("°C", 40.0, 0.0, "Temperature", "Ambient"));
+                telemetry.add(new Telemetry("%", 100.0, 40.0, "Humidity", "Humidity"));
+                telemetry.add(new Telemetry("lm", 400.0, 100.0, "Light", "Light"));
+                telemetry.add(new Telemetry("inHg", 35, 25, "Pressure", "Pressure"));
 
                 Customer cust = customerCache.get(rand(COMPANIES));
 
@@ -266,12 +266,12 @@ public class UtilsEndpoint {
 
         long warningCount = cache.keySet().stream()
                 .map(cache::get)
-                .filter(v -> v.getStatus() == Shipment.Status.WARNING)
+                .filter(v -> "warning".equalsIgnoreCase(v.getStatus()))
                 .count();
 
         long errorCount = cache.keySet().stream()
                 .map(cache::get)
-                .filter(v -> v.getStatus() == Shipment.Status.ERROR)
+                .filter(v -> "error".equalsIgnoreCase(v.getStatus()))
                 .count();
 
         summary.setWarningCount(warningCount);
@@ -302,12 +302,12 @@ public class UtilsEndpoint {
 
         long warningCount = cache.keySet().stream()
                 .map(cache::get)
-                .filter(v -> v.getStatus() == Vehicle.Status.WARNING)
+                .filter(v -> "warning".equalsIgnoreCase(v.getStatus()))
                 .count();
 
         long errorCount = cache.keySet().stream()
                 .map(cache::get)
-                .filter(v -> v.getStatus() == Vehicle.Status.ERROR)
+                .filter(v -> "error".equalsIgnoreCase(v.getStatus()))
                 .count();
 
         summary.setWarningCount(warningCount);

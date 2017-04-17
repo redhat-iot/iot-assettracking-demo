@@ -112,6 +112,8 @@ public class AlertsService implements MqttCallback {
                 System.out.println("Cannot find vehicle " + objId + ", ignoring alert");
                 return;
             }
+            v.setStatus("warning");
+            dgService.getVehicles().put(v.getVin(), v);
             addAlert(new Alert("vehicle alert", v.getVin(), null));
         } else if ("packages".equals(objType)) {
 
@@ -128,6 +130,8 @@ public class AlertsService implements MqttCallback {
             }
 
             for (Shipment alertShip : shipments) {
+                alertShip.setStatus("warning");
+                dgService.getShipments().put(alertShip.getSensor_id() + "/" + alertShip.getCur_vehicle().getVin(), alertShip);
                 addAlert(new Alert("package alert", alertShip.getCur_vehicle().getVin(), alertShip.getSensor_id()));
             }
         } else {

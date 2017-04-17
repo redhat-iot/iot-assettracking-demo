@@ -505,13 +505,15 @@ angular.module('app')
                     if (summary.warningCount > 0) {
                         $scope.summaries[summary.name].notifications.push({
                             "iconClass":"pficon pficon-warning-triangle-o",
-                            "count":summary.warningCount
+                            "count":summary.warningCount,
+                            "href": "#/"
                         })
                     }
                     if (summary.errorCount > 0) {
                         $scope.summaries[summary.name].notifications.push({
                             "iconClass":"pficon pficon pficon-error-circle-o",
-                            "count":summary.errorCount
+                            "count":summary.errorCount,
+                            "href": "#/"
                         })
                     }
                 });
@@ -569,7 +571,11 @@ angular.module('app')
                 });
 
                 $scope.$on("vehicle:alert", function(evt, al) {
-                    alert("ALERT: " + JSON.stringify(al));
+                    $scope.vehicles.forEach(function (v) {
+                        if (v.vin == al.vin) {
+                            v.status = "warning";
+                        }
+                    });
                 })
             }])
 
@@ -888,8 +894,12 @@ angular.module('app')
                 });
 
                 $scope.$on("package:alert", function(evt, al) {
-                    alert("PACKAGE ALERT: " + JSON.stringify(al));
-                })
+                    $scope.shipments.forEach(function (s) {
+                        if (s.cur_vehicle.vin == al.vin && s.sensor_id == al.sensor_id) {
+                            s.status = "warning";
+                        }
+                    });
+                });
 
                 $scope.isSelected = function (shipment) {
                     if (!$scope.selectedShipment || !shipment) {
@@ -939,8 +949,8 @@ angular.module('app')
             }])
 
     .controller("HeaderController",
-        ['$scope', '$location', '$http', 'APP_CONFIG', 'Notifications', 'Reports',
-            function ($scope, $location, $http, APP_CONFIG, Notifications, Reports) {
+        ['$scope', '$location', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $location, $http, APP_CONFIG, Notifications, SensorData, Reports) {
                 $scope.userInfo = {
                     fullName: "John Q. Shipper"
                 };
@@ -969,6 +979,11 @@ angular.module('app')
                     $scope.shipmentCount = newVal;
                 });
 
+
+                $scope.cascadingAlert = function() {
+                    SensorData.cascadingAlert();
+                };
+
             }])
 
 .controller("VehiclePanelController",
@@ -982,7 +997,6 @@ angular.module('app')
             $scope.noLabel = "none";
 
             function addData(vehicle, data) {
-
                 if (vehicle != $scope.selectedVehicle) {
                     return;
                 }
@@ -993,8 +1007,8 @@ angular.module('app')
 
                     dataSet.used = metric.value;
                     dataSet.dataAvailable = true;
-                    if (metric.value > (.90 * dataSet.total)) {
-                        truckType = 'warning';
+                    if (metric.value > dataSet.total || metric.value < dataSet.min) {
+                        truckType = metric.name;
                     }
 
                 });
@@ -1010,7 +1024,7 @@ angular.module('app')
                     $scope.config[telemetry.name] = {
                         'chartId'      :  telemetry.metricName + "vehiclechart",
                         'units'        : telemetry.units,
-                        'thresholds'    : {'warning':80,'error':90},
+                        'thresholds'    : {'warning':95,'error':98},
                         'tooltipType'  : 'default',
                         'centerLabelFn': function () {
                             return $scope.data[telemetry.name].used + " " + telemetry.units;
@@ -1020,6 +1034,7 @@ angular.module('app')
                     $scope.data[telemetry.name] = {
                         'used': 0,
                         'total': telemetry.max,
+                        'min': telemetry.min,
                         'dataAvailable': false
                     };
                 });

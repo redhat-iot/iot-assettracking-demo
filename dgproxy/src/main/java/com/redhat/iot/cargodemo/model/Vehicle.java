@@ -7,9 +7,6 @@ import java.util.List;
 
 @XmlRootElement(name="vehicle")
 public class Vehicle implements Serializable {
-    public enum Status {
-      OK, WARNING, ERROR
-    }
 
     private String vin;
     private String desc;
@@ -17,7 +14,7 @@ public class Vehicle implements Serializable {
     private Facility origin;
     private Facility destination;
     private Date eta;
-    private Status status;
+    private String status;
 
     public Date getEta() {
         return eta;
@@ -27,11 +24,11 @@ public class Vehicle implements Serializable {
         this.eta = eta;
     }
 
-    public Status getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -62,6 +59,7 @@ public class Vehicle implements Serializable {
     }
 
     public Vehicle() {
+        this.status = "ok";
 
     }
     public Facility getOrigin() {
@@ -81,6 +79,8 @@ public class Vehicle implements Serializable {
     }
 
     public Vehicle(String vin, String desc) {
+        super();
+        this.status = "ok";
         this.vin = vin;
         this.desc = desc;
     }

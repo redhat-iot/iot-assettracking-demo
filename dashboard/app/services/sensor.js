@@ -2,14 +2,15 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Vehicles', 'Shipments',
-        function ($http, $rootScope, $location, $q, APP_CONFIG, Notifications, Vehicles, Shipments) {
+    .factory('SensorData', ['$http', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Vehicles', 'Shipments',
+        function ($http, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Vehicles, Shipments) {
         var factory = {},
             client = null,
             msgproto = null,
             listeners = [],
             topicRegex = /Red-Hat\/([^\/]*)\/iot-demo\/([^\/]*)\/([^\/]*)$/,
-            alertRegex = /Red-Hat\/([^\/]*)\/iot-demo\/([^\/]*)\/([^\/]*)\/alerts$/;
+            alertRegex = /Red-Hat\/([^\/]*)\/iot-demo\/([^\/]*)\/([^\/]*)\/alerts$/,
+            metricOverrides = {};
 
             function setFromISO8601(isostr) {
             var parts = isostr.match(/\d+/g);
@@ -35,10 +36,8 @@ angular.module('app')
                     break;
                 case 'packages':
                     Shipments.getAllShipments(function(allShipments) {
-                        console.log("got ALL shipments (" + allShipments.length + ")");
                         allShipments.forEach(function(shipment) {
                             if (shipment.sensor_id == objId) {
-                                console.log("broadcasting alert ");
                                 $rootScope.$broadcast('package:alert', {
                                     vin: shipment.cur_vehicle.vin,
                                     sensor_id: objId
@@ -53,10 +52,8 @@ angular.module('app')
 
         }
 
-        var count = 1;
         function onMessageArrived(message) {
             var destination = message.destinationName;
-            console.log(count++ + "RECEIVED on " + destination);
 
             if (alertRegex.test(destination)) {
                 handleAlert(destination, decoded);
@@ -79,16 +76,18 @@ angular.module('app')
                         targetObj.telemetry.forEach(function(objTel) {
                             var telName = objTel.name;
                             var telMetricName = objTel.metricName;
+                            var value =  metricOverrides[telMetricName] ?
+                                (metricOverrides[telMetricName] * (.95 + 0.05 * Math.random())).toFixed(1) :
+                                decodedMetric.doubleValue.toFixed(1);
                             if (telMetricName == decodedMetric.name) {
                                 data.push({
                                     name: telName,
-                                    value: decodedMetric.doubleValue.toFixed(1),
+                                    value: value,
                                     timestamp: new Date()
                                 });
                             }
                         });
                     });
-
                     cb(data);
                 });
             }
@@ -243,6 +242,80 @@ angular.module('app')
 
         };
 
+        function sendMsg(obj, topic) {
+            var payload = msgproto.encode(obj).finish();
+
+            var message = new Paho.MQTT.Message(payload);
+            message.destinationName = topic;
+            client.send(message);
+        }
+
+        factory.cascadingAlert = function() {
+
+            var hitemp =
+                {
+                    timestamp: new Date().getTime(),
+                    metric: [
+                        {
+                            name: 'temp',
+                            type: 'DOUBLE',
+                            doubleValue: 400
+                        }
+                    ]
+                };
+            var hipkgtemp =
+                {
+                    timestamp: new Date().getTime(),
+                    metric: [
+                        {
+                            name: 'Ambient',
+                            type: 'DOUBLE',
+                            doubleValue: 42.2
+                        }
+                    ]
+                };
+
+            var hipress =
+                {
+                    timestamp: new Date().getTime(),
+                    metric: [
+                        {
+                            name: 'oilpress',
+                            type: 'DOUBLE',
+                            doubleValue: 85
+                        }
+                    ]
+                };
+
+
+            $interval(function() {
+                metricOverrides['temp'] = 400;
+                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8')
+            }, 5000);
+
+            $timeout(function() {
+                metricOverrides['oilpress'] = 85;
+                $interval(function() {
+                    sendMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8');
+                    for (var i = 1; i <= 20; i++) {
+                        sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/package-' + i);
+                    }
+                    metricOverrides['Ambient'] = 42.2;
+                }, 5000);
+            }, 15000);
+
+
+            $timeout(function() {
+                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8/alerts');
+                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(function(el, idx) {
+                    $timeout(function() {
+                        sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + el + '/alerts');
+                    }, idx * 500);
+                });
+
+            }, 25000);
+
+        };
 
         connectClient();
         return factory;

@@ -40,7 +40,10 @@
                            href="http://maps.google.com/?q={{vehicle.destination.address}}">{{vehicle.destination.address}}</a>
                 </td>
                 <td>{{vehicle.eta | date:'medium'}}</td>
-                <td><center><icon class="pficon fa-2x pficon-ok"></icon></center></td>
+                <td><center>
+                    <icon ng-if="vehicle.status == 'ok'" class="pficon fa-2x pficon-ok"></icon>
+                    <icon ng-if="vehicle.status != 'ok'" title="Vehicle sensor {{vehicle.status}} detected; vehicle operator notified" class="pficon fa-2x pficon-warning-triangle-o"></icon>
+                </center></td>
             </tr>
             </tbody>
         </table>
