@@ -197,6 +197,17 @@ angular.module('app')
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 data: {
                     "size": 0,
+                    "query": {
+                        "bool": {
+                          "must": [
+                            {
+                              "term": {
+                                "channel": "iot-demo/packages/" + pkg.sensor_id
+                              }
+                            }
+                          ]
+                        }
+                    },
                     "aggs": {
                         "my_date_histo": {
                             "date_histogram": {
