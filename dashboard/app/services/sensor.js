@@ -259,7 +259,7 @@ angular.module('app')
                         {
                             name: 'temp',
                             type: 'DOUBLE',
-                            doubleValue: 400
+                            doubleValue: 265
                         }
                     ]
                 };
@@ -282,19 +282,19 @@ angular.module('app')
                         {
                             name: 'oilpress',
                             type: 'DOUBLE',
-                            doubleValue: 85
+                            doubleValue: 95
                         }
                     ]
                 };
 
 
             $interval(function() {
-                metricOverrides['temp'] = 400;
+                metricOverrides['temp'] = 265;
                 sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8')
             }, 5000);
 
             $timeout(function() {
-                metricOverrides['oilpress'] = 85;
+                metricOverrides['oilpress'] = 95;
                 $interval(function() {
                     sendMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8');
                     for (var i = 1; i <= 20; i++) {
