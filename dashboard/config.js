@@ -14,7 +14,9 @@ var config =
     DATASTORE_REST_PORT: process.env.DATASTORE_REST_PORT || 80,
 
     // Google API Key (can be blank, resulting in throttling for high usage)
-    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || ""
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || "",
+
+    STATIC_TELEMETRY_GRAPHS: process.env.STATIC_TELEMETRY_GRAPHS || 'Humidity,Pressure'
 };
 
 module.exports = config;

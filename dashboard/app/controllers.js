@@ -580,8 +580,8 @@ angular.module('app')
             }])
 
     .controller("PkgTelemetryController",
-        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData',
-            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData) {
+        ['$filter', '$interval', '$rootScope', '$scope', '$modal', '$http', 'Notifications', 'SensorData', 'APP_CONFIG',
+            function ($filter, $interval, $rootScope, $scope, $modal, $http, Notifications, SensorData, APP_CONFIG) {
 
                 var MAX_POINTS = 20;
 
@@ -622,11 +622,6 @@ angular.module('app')
                 $scope.n3options = [];
                 $scope.n3data = [];
 
-                // $interval(function() {
-                //
-                // }, 2000);
-
-
                 $scope.$on('package:selected', function(event, pkg) {
                     pkg.telemetry.forEach(function(telemetry) {
                         $scope.n3options[telemetry.name] = {
@@ -659,6 +654,16 @@ angular.module('app')
                                 left: 0
                             }
                         };
+
+                        if (APP_CONFIG.STATIC_TELEMETRY_GRAPHS) {
+                            var statics = APP_CONFIG.STATIC_TELEMETRY_GRAPHS.split(',');
+                            if (statics.indexOf(telemetry.name) != -1) {
+                                $scope.n3options[telemetry.name].axes.y = {
+                                    min: telemetry.min,
+                                    max: telemetry.max
+                                }
+                            }
+                        }
 
                         $scope.n3data[telemetry.name] = {
                             hasData: false,

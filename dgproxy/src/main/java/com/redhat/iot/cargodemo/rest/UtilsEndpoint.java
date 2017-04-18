@@ -90,63 +90,76 @@ public class UtilsEndpoint {
 
             String vin = "truck-" + i;
 
-            Vehicle v = new Vehicle(vin, rand(VEHICLE_TYPES));
+            Vehicle newVehicle = new Vehicle(vin, rand(VEHICLE_TYPES));
 
             Facility v_origin = facilitiesCache.get(rand(ORIGINS));
             Facility v_dest = facilitiesCache.get(rand(DESTS));
 
-            v.setOrigin(v_origin);
-            v.setDestination(v_dest);
+            newVehicle.setOrigin(v_origin);
+            newVehicle.setDestination(v_dest);
 
             List<Telemetry> vehicleTelemetry = new ArrayList<>();
             vehicleTelemetry.add(new Telemetry("°C", 250.0, 150.0, "Engine Temp", "temp"));
             vehicleTelemetry.add(new Telemetry("rpm", 2200.0, 500.0, "RPM", "rpm"));
             vehicleTelemetry.add(new Telemetry("psi", 80.0, 30.0, "Oil Pressure", "oilpress"));
-            v.setTelemetry(vehicleTelemetry);
+            newVehicle.setTelemetry(vehicleTelemetry);
 
             Date v_eta = new Date(new Date().getTime() + DAY_IN_MS + (long)(Math.random() * DAY_IN_MS * 2));
 
-            v.setEta(v_eta);
-            vehiclesCache.put(vin, v);
+            newVehicle.setEta(v_eta);
+            vehiclesCache.put(vin, newVehicle);
 
             for (int j = 1; j <= MAX_PACKAGES_PER_VEHICLE; j++) {
 
-                List<Facility> route = new ArrayList<Facility>();
-
-                Facility p_origin = facilitiesCache.get(rand(ORIGINS));
-                Facility p_dest = facilitiesCache.get(rand(DESTS));
-
-                route.add(p_origin);
-                route.add(v_dest);
-                route.add(p_dest);
-
-                List<Telemetry> telemetry = new ArrayList<>();
-                telemetry.add(new Telemetry("°C", 40.0, 0.0, "Temperature", "Ambient"));
-                telemetry.add(new Telemetry("%", 100.0, 40.0, "Humidity", "Humidity"));
-                telemetry.add(new Telemetry("lm", 400.0, 100.0, "Light", "Light"));
-                telemetry.add(new Telemetry("inHg", 35, 25, "Pressure", "Pressure"));
-
-                Customer cust = customerCache.get(rand(COMPANIES));
-
-                // left ~3 days, ago eta ~5 days from now
-                Date etd = new Date(new Date().getTime() - DAY_IN_MS - (long)(Math.random() * DAY_IN_MS * 3));
-                Date eta = new Date(new Date().getTime() + DAY_IN_MS + (long)(Math.random() * DAY_IN_MS * 4));
-
-                String sensorId = "pkg-" + j;
-
-                Shipment s = new Shipment(customerCache.get(rand(COMPANIES)),
-                        "Package " + j, rand(PKG_DESCS),
-                        sensorId, route, etd, eta, Math.random() * 2000, v);
-
-                s.setTelemetry(telemetry);
-                shipmentCache.put(sensorId + "/" + vin, s);
-                System.out.println("Inserting shipment: " + s);
+                addShipment(customerCache, facilitiesCache, shipmentCache, vin, newVehicle, v_dest, "pkg-" + j,
+                        rand(PKG_DESCS));
             }
 
+            // Add additional sensor ids if present
+            String addl = System.getenv("ADDITIONAL_SENSOR_IDS");
+            if (addl != null) {
+                String[] ids = addl.split(",");
+                for (String id: ids) {
+                    addShipment(customerCache, facilitiesCache, shipmentCache, vin, newVehicle, v_dest, id.trim(),
+                            rand(PKG_DESCS) + " [IOT]");
+                }
+            }
 
         }
         calcUtilization();
 
+    }
+
+    private void addShipment(Map<String, Customer> customerCache, Map<String, Facility> facilitiesCache,
+                             Map<String, Shipment> shipmentCache, String vin, Vehicle v, Facility v_dest, String sensor_id,
+                             String pkgDesc) {
+        List<Facility> route = new ArrayList<Facility>();
+
+        Facility p_origin = facilitiesCache.get(rand(ORIGINS));
+        Facility p_dest = facilitiesCache.get(rand(DESTS));
+
+        route.add(p_origin);
+        route.add(v_dest);
+        route.add(p_dest);
+
+        List<Telemetry> telemetry = new ArrayList<>();
+        telemetry.add(new Telemetry("°C", 40.0, 0.0, "Temperature", "Ambient"));
+        telemetry.add(new Telemetry("%", 100.0, 0.0, "Humidity", "Humidity"));
+        telemetry.add(new Telemetry("lm", 400.0, 100.0, "Light", "Light"));
+        telemetry.add(new Telemetry("inHg", 31, 29, "Pressure", "Pressure"));
+
+        Customer cust = customerCache.get(rand(COMPANIES));
+
+        // left ~3 days, ago eta ~5 days from now
+        Date etd = new Date(new Date().getTime() - DAY_IN_MS - (long)(Math.random() * DAY_IN_MS * 3));
+        Date eta = new Date(new Date().getTime() + DAY_IN_MS + (long)(Math.random() * DAY_IN_MS * 4));
+
+        Shipment s = new Shipment(customerCache.get(rand(COMPANIES)),
+                "Package " + sensor_id + "/" + vin, pkgDesc,
+                sensor_id, route, etd, eta, Math.random() * 2000, v);
+
+        s.setTelemetry(telemetry);
+        shipmentCache.put(sensor_id + "/" + vin, s);
     }
 
     private String rand(String[] strs) {
