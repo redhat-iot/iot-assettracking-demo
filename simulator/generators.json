@@ -1,7 +1,7 @@
 {
   "applications": {
     "iot-demo": {
-      "scheduler": { "period": 2000 },
+      "scheduler": { "period": 1000 },
       "topics": {
         "trucks/truck-1": {
           "metrics": {
@@ -236,19 +236,19 @@
       },
       "generators": {
         "rpm": {
-          "type": "sine", "period": 3000, "offset": 1200, "amplitude": 600
+          "type": "sine", "period": 30000, "offset": 1200, "amplitude": 600
         },
         "temp": {
-          "type": "sine", "period": 6000, "shift": 100, "offset": 190, "amplitude": 40
+          "type": "sine", "period": 60000, "shift": 100, "offset": 190, "amplitude": 40
         },
         "oilpress": {
-          "type": "sine", "period": 3000, "shift": 400, "offset": 50, "amplitude": 20
+          "type": "sine", "period": 30000, "shift": 400, "offset": 50, "amplitude": 20
         },
         "ambient_temp": {
-          "type": "sine", "period": 10000, "offset": 25, "amplitude": 4
+          "type": "sine", "period": 100000, "offset": 25, "amplitude": 4
         },
         "lux": {
-          "type": "sine", "period": 10000, "shift": 45.5, "offset": 220, "amplitude": 90
+          "type": "sine", "period": 100000, "shift": 45.5, "offset": 220, "amplitude": 90
         },
         "humidity": {
           "type": "sine", "period": 432000, "offset": 70, "amplitude": 20
