@@ -81,7 +81,7 @@ There are other options in the template that can be overridden if you know what 
 Uninstalling and cleaning up project
 ------------------------------------
 ```
-oc delete all --all -n redhat-iot && oc delete configmap hawkular-openshift-agent-kapua
+oc delete all --all -n redhat-iot && oc delete configmap hawkular-openshift-agent-kapua data-simulator-config -n redhat-iot
 ```
 This will delete everything but the project "Red Hat IoT". This is suitable for testing new scripts, template,
 etc.
