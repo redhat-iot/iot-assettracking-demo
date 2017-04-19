@@ -63,16 +63,16 @@ oc get pods --show-all=false
 ```
 You should see the following pods and their status:
 
-NAME                      READY     STATUS
-dashboard-1-xxx           1/1       Running
-datastore-1-xxx           1/1       Running 
-datastore-proxy-1-xxx     1/1       Running
-elasticsearch-1-xxx       1/1       Running
-kapua-api-1-wc1l7         1/1       Running
-kapua-broker-1-xxx        1/1       Running
-kapua-console-1-xxx       1/1       Running
-simulator-1-xxx           1/1       Running
-sql-1-xxx                 1/1       Running
+|NAME                 |   READY     | STATUS  |
+|dashboard-1-xxx      |    1/1      | Running |
+|datastore-1-xxx      |    1/1      | Running |
+|datastore-proxy-1-xxx|    1/1      | Running |
+|elasticsearch-1-xxx  |    1/1      | Running |
+|kapua-api-1-wc1l7    |    1/1      | Running |
+|kapua-broker-1-xxx   |    1/1      | Running |
+|kapua-console-1-xxx  |    1/1      | Running |
+|simulator-1-xxx      |    1/1      | Running |
+|sql-1-xxx            |    1/1      | Running |
 
 Add template to "Add to project"
 --------------------------------
