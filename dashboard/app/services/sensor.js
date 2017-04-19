@@ -12,10 +12,41 @@ angular.module('app')
             alertRegex = /Red-Hat\/([^\/]*)\/iot-demo\/([^\/]*)\/([^\/]*)\/alerts$/,
             metricOverrides = {};
 
-            function setFromISO8601(isostr) {
-            var parts = isostr.match(/\d+/g);
-            return new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]));
-        }
+            // Set the name of the hidden property and the change event for visibility
+            var hidden, visibilityChange;
+            if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+                hidden = "hidden";
+                visibilityChange = "visibilitychange";
+            } else if (typeof document.msHidden !== "undefined") {
+                hidden = "msHidden";
+                visibilityChange = "msvisibilitychange";
+            } else if (typeof document.webkitHidden !== "undefined") {
+                hidden = "webkitHidden";
+                visibilityChange = "webkitvisibilitychange";
+            }
+
+            // If the page/tab is hidden, pause the data stream;
+            // if the page/tab is shown, restart the stream
+            function handleVisibilityChange() {
+                if (document[hidden]) {
+                    listeners.forEach(function(listener) {
+                        client.unsubscribe(listener.topic);
+                    });
+                } else {
+                    // doc played
+                    listeners.forEach(function(listener) {
+                        client.subscribe(listener.topic);
+                    });
+                }
+            }
+
+            // Warn if the browser doesn't support addEventListener or the Page Visibility API
+            if (typeof document.addEventListener === "undefined" || typeof document[hidden] === "undefined") {
+                console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+            } else {
+                // Handle page visibility change
+                document.addEventListener(visibilityChange, handleVisibilityChange, false);
+            }
 
         function onConnectionLost(responseObject) {
             if (responseObject.errorCode !== 0) {
