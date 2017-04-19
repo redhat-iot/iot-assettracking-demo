@@ -7,7 +7,6 @@ It demonstrates realtime fleet telematics, package tracking, alerting, and a tel
 including temperature, humidity, displacement, light levels, etc.
 
 <img src="docs/screenshots/fleet.png" alt="Fleet Manager" width="400px">
----
 <img src="docs/screenshots/exec.png" alt="Fleet Manager" width="400px">
 
 Technologies used:
