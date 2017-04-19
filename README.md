@@ -47,6 +47,7 @@ If you see some components with "No Deployments" or are not building, you may ne
 definitions for ``wildfly`` and ``jboss-datagrid``. To do so, run these commands:
 
 ```
+oc login -u system:admin (Or login with any userid that has cluster-admin privileges, TODO: Explain all options here)
 oc create -n openshift -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/jboss-image-streams.json
 oc create -n openshift -f https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json
 ```
