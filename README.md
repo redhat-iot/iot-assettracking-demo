@@ -56,6 +56,24 @@ oc create -n openshift -f https://raw.githubusercontent.com/openshift/origin/mas
 Once everything is up and running, you can access the demo using the URL of the `dashboard` route,
 for example `http://dashboard-redhat-iot.domain`
 
+Confirm that all the components are running successfully:
+
+```
+oc get pods --show-all=false
+```
+You should see the following pods and their status:
+
+NAME                      READY     STATUS
+dashboard-1-xxx           1/1       Running
+datastore-1-xxx           1/1       Running 
+datastore-proxy-1-xxx     1/1       Running
+elasticsearch-1-xxx       1/1       Running
+kapua-api-1-wc1l7         1/1       Running
+kapua-broker-1-xxx        1/1       Running
+kapua-console-1-xxx       1/1       Running
+simulator-1-xxx           1/1       Running
+sql-1-xxx                 1/1       Running
+
 Add template to "Add to project"
 --------------------------------
 The following command will add the template and the options to the "Add to project" screen in the 
