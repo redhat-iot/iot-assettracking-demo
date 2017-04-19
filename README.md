@@ -64,7 +64,7 @@ oc get pods --show-all=false
 You should see the following pods and their status:
 
 |NAME                 |   READY     | STATUS  |
- ---------------------  ------------  --------
+|---------------------|:-----------:|:-------:|
 |dashboard-1-xxx      |    1/1      | Running |
 |datastore-1-xxx      |    1/1      | Running |
 |datastore-proxy-1-xxx|    1/1      | Running |
