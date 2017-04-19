@@ -6,7 +6,9 @@ IoT gateway device (based on Eclipse Kura) through the Eclipse Kapua.
 It demonstrates realtime fleet telematics, package tracking, alerting, and a telemetry dashboard showing critical measurements of packages in transit,
 including temperature, humidity, displacement, light levels, etc.
 
-![Dashboard Screenshot](/../screenshots/screenshots/iot-dashboard.png?raw=true "Dashboard Screenshot")
+<img src="docs/screenshots/fleet.png" alt="Fleet Manager" width="400px">
+---
+<img src="docs/screenshots/exec.png" alt="Fleet Manager" width="400px">
 
 Technologies used:
 
