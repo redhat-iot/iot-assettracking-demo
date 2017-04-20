@@ -24,11 +24,12 @@
         </form>
     </div>
 
-    <div style="height: 400px; overflow-y:scroll">
-        <table ng-if="shipments.length > 0" class="table table-fixed table-striped table-bordered table-hover" id="myShipTable">
+    <scrollable-table ng-if="shipments.length > 0" watch="shipments">
+
+        <table  class="table table-fixed table-striped table-bordered table-hover" id="myShipTable">
             <thead>
             <tr>
-                <th>Client Package</th>
+                <th sortable-header col="customer.name">Client Package</th>
                 <th>Route</th>
                 <th>ETA</th>
                 <th>Status</th>
@@ -38,7 +39,8 @@
           <tbody>
 
             <tr ng-class="{ active: isSelected(shipment)}" ng-click="selectShipment(shipment);"
-                ng-repeat="shipment in shipments | filter:shipQuery track by shipment.sensor_id">
+                ng-repeat="shipment in shipments | filter:shipQuery track by shipment.sensor_id"
+                row-id="{{shipment.customer.name}} ({{shipment.desc}}">
                 <td data-toggle="tooltip" data-placement="right" title="{{shipment.customer.name}}">
                     {{shipment.customer.name}} ({{shipment.desc}})
                 </td>
@@ -60,8 +62,8 @@
             </tr>
         </tbody>
         </table>
+    </scrollable-table>
 
-    </div>
 </div>
 
 

@@ -17,9 +17,11 @@
     "paho-mqtt-js": "1.0.1",
     "angular-route": "1.5.11",
     "angular-sanitize": "1.5.11",
+    "angular-scrollable-table": "1.1.2",
     "angular-moment": "1.0.0"
   },
   "resolutions": {
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "angular": "1.5.11"
   }
 }

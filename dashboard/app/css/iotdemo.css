@@ -93,3 +93,9 @@
 .chart .axis {
     display: none;
 }
+
+.scrollArea table th .box {
+    background-clip: padding-box;
+    background-image: linear-gradient(to bottom,#fafafa 0,#ededed 100%);
+    background-repeat: repeat-x;
+}

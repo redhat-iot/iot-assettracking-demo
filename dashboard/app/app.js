@@ -1,7 +1,7 @@
 'use strict';
 
 var module = angular.module('app', ['ngRoute', 'ui.bootstrap', 'patternfly',
-    'angular-websocket', 'ngMap', 'angularMoment', 'n3-line-chart',
+    'angular-websocket', 'ngMap', 'angularMoment', 'n3-line-chart','scrollable-table',
     'frapontillo.bootstrap-switch']);
 
 angular.element(document).ready(function () {
