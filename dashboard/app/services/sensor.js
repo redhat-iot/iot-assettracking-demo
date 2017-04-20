@@ -51,6 +51,9 @@ angular.module('app')
         function onConnectionLost(responseObject) {
             if (responseObject.errorCode !== 0) {
                 console.log("onConnectionLost:"+responseObject.errorMessage);
+                Notifications.warn("Lost connection to broker, attempting to reconnect (" + responseObject.errorMessage);
+                connectClient(1);
+
             }
         }
 
@@ -131,8 +134,18 @@ angular.module('app')
 
         }
 
-        function connectClient() {
+        function connectClient(attempt) {
 
+            var MAX_ATTEMPTS = 100;
+
+            if (attempt > MAX_ATTEMPTS) {
+                Notifications.error("Cannot connect to broker after " + MAX_ATTEMPTS +" attempts, reload to retry");
+                return;
+            }
+
+            if (attempt > 1) {
+                Notifications.warn("Trouble connecting to broker, will keep trying (reload to re-start the count)");
+            }
             var brokerHostname = APP_CONFIG.BROKER_WEBSOCKET_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1");
             client = new Paho.MQTT.Client(brokerHostname, Number(APP_CONFIG.BROKER_WEBSOCKET_PORT), "demo-client-" + guid());
 
@@ -145,9 +158,22 @@ angular.module('app')
                 msgproto = root.lookup("kuradatatypes.KuraPayload");
                 // connect the client
                 client.connect({
-                    onSuccess:onConnect,
+                    onSuccess: function() {
+                        console.log("Connected to broker");
+                        if (attempt > 1) {
+                            Notifications.success("Connected to the IoT cloud!");
+                        }
+                        var topicName = "Red-Hat/+/iot-demo/+/+/alerts";
+                        client.subscribe(topicName);
+                    },
                     userName: APP_CONFIG.BROKER_USERNAME,
-                    password: APP_CONFIG.BROKER_PASSWORD
+                    password: APP_CONFIG.BROKER_PASSWORD,
+                    onFailure: function(err) {
+                        console.log("Failed to connect to broker (attempt " + attempt + "), retrying. Error code:" + err.errorCode + " message:" + err.errorMessage);
+                        $timeout(function() {
+                            connectClient(attempt+1);
+                        }, 10000);
+                    }
                 });
             });
         }
@@ -397,6 +423,6 @@ angular.module('app')
 
             };
 
-            connectClient();
+            connectClient(1);
         return factory;
     }]);

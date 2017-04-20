@@ -16,6 +16,8 @@ public class AlertsService implements MqttCallback {
 
     final private List<Alert> alerts = Collections.synchronizedList(new ArrayList<>());
 
+    public static final int MAX_RECONNECT_ATTEMPTS = 100;
+
     @Inject
     DGService dgService;
 
@@ -59,38 +61,49 @@ public class AlertsService implements MqttCallback {
     private void subscribeToAlerts() {
         MemoryPersistence persistence = new MemoryPersistence();
         String broker = "tcp://kapua-broker:1883";
-        try {
 
-            MqttClient sampleClient = new MqttClient(broker, "dgproxy", persistence);
+        for (int i = 0; i < MAX_RECONNECT_ATTEMPTS; i++) {
+            try {
 
-            MqttConnectOptions connOpts = new MqttConnectOptions();
-            connOpts.setUserName(System.getenv("BROKER_USERNAME"));
-            connOpts.setPassword(System.getenv("BROKER_PASSWORD").toCharArray());
+                MqttClient sampleClient = new MqttClient(broker, "dgproxy", persistence);
 
-            connOpts.setCleanSession(true);
-            System.out.println("Connecting to broker: " + broker);
-            sampleClient.connect(connOpts);
-            System.out.println("Connected");
+                MqttConnectOptions connOpts = new MqttConnectOptions();
+                connOpts.setUserName(System.getenv("BROKER_USERNAME"));
+                connOpts.setPassword(System.getenv("BROKER_PASSWORD").toCharArray());
 
-            sampleClient.setCallback(this);
-            sampleClient.subscribe("Red-Hat/+/iot-demo/+/+/alerts");
+                connOpts.setCleanSession(true);
+                System.out.println("Attempt " + (i+1) + " of " + MAX_RECONNECT_ATTEMPTS + ": Connecting to broker: " + broker);
+                sampleClient.connect(connOpts);
+                System.out.println("Connected");
 
-            System.out.println("Subscribed");
-        } catch (MqttException me) {
-            System.out.println("reason " + me.getReasonCode());
-            System.out.println("msg " + me.getMessage());
-            System.out.println("loc " + me.getLocalizedMessage());
-            System.out.println("cause " + me.getCause());
-            System.out.println("excep " + me);
-            me.printStackTrace();
+                sampleClient.setCallback(this);
+                sampleClient.subscribe("Red-Hat/+/iot-demo/+/+/alerts");
+
+                System.out.println("Subscribed");
+                break;
+            } catch (Exception me) {
+                System.out.println("Could not connect to " + broker);
+                System.out.println("msg " + me.getMessage());
+                System.out.println("loc " + me.getLocalizedMessage());
+                System.out.println("cause " + me.getCause());
+                System.out.println("excep " + me);
+                me.printStackTrace();
+            }
+            try {
+                System.out.println("Waiting for 10s to retry");
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     @Override
     public void connectionLost(Throwable throwable) {
         System.out.println("CONNECTION LOST");
         throwable.printStackTrace();
+        System.out.println("Attempting to reconnect");
+        subscribeToAlerts();
     }
 
     @Override
