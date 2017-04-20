@@ -958,10 +958,14 @@ angular.module('app')
             function ($scope, $location, $http, APP_CONFIG, Notifications, SensorData, Reports) {
 
                 $scope.veh = null;
+                $scope.pkg = null;
                 $scope.triggered = false;
 
                 $scope.$on('vehicles:selected', function(evt, veh) {
-                   $scope.veh = veh;
+                    $scope.veh = veh;
+                });
+                $scope.$on('package:selected', function(evt, pkg) {
+                    $scope.pkg = pkg;
                 });
                 $scope.userInfo = {
                     fullName: "Mary Q. Shipper"
@@ -1003,6 +1007,14 @@ angular.module('app')
                     }
                     $scope.triggered = true;
                     SensorData.cascadingAlert($scope.veh);
+                };
+
+                $scope.cascadingPkgAlert = function() {
+                    if (!$scope.pkg) {
+                        Notifications.warn("You must first choose a package to simulate failure");
+                        return;
+                    }
+                    SensorData.cascadingPkgAlert($scope.pkg);
                 };
 
             }])

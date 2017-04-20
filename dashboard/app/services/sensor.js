@@ -339,27 +339,64 @@ angular.module('app')
                 metricOverrides[vehicle.vin]['oilpress'] = 95;
                 $interval(function() {
                     sendMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin);
-                    for (var i = 1; i <= 20; i++) {
-                        sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + i);
-                        metricOverrides['pkg-' + i] = {};
-                        metricOverrides['pkg-' + i]['Ambient'] = 42.2;
-                    }
+                    // for (var i = 1; i <= 20; i++) {
+                    //     sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + i);
+                    //     metricOverrides['pkg-' + i] = {};
+                    //     metricOverrides['pkg-' + i]['Ambient'] = 42.2;
+                    // }
                 }, 5000);
             }, 15000);
 
 
             $timeout(function() {
                 sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
-                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(function(el, idx) {
-                    $timeout(function() {
-                        sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + el + '/alerts');
-                    }, idx * 500);
-                });
+                // ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(function(el, idx) {
+                //     $timeout(function() {
+                //         sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + el + '/alerts');
+                //     }, idx * 500);
+                // });
 
             }, 25000);
 
         };
 
-        connectClient();
+            factory.cascadingPkgAlert = function(pkg) {
+
+                var hipkgtemp =
+                    {
+                        timestamp: new Date().getTime(),
+                        metric: [
+                            {
+                                name: 'Ambient',
+                                type: 'DOUBLE',
+                                doubleValue: 42.2
+                            }
+                        ]
+                    };
+
+                $timeout(function() {
+                    $interval(function() {
+                        for (var i = 1; i <= 20; i++) {
+                            sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + i);
+                            metricOverrides['pkg-' + i] = {};
+                            metricOverrides['pkg-' + i]['Ambient'] = 42.2;
+                        }
+                    }, 5000);
+                }, 5000);
+
+
+                $timeout(function() {
+                    // sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
+                    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(function(el, idx) {
+                        $timeout(function() {
+                            sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + el + '/alerts');
+                        }, idx * 500);
+                    });
+
+                }, 15000);
+
+            };
+
+            connectClient();
         return factory;
     }]);
