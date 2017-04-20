@@ -1,7 +1,7 @@
-Red Hat IoT Precious Cargo Demo
-================================
+Red Hat Fleet Telematics & Asset Tracking IoT Demo
+==================================================
 This is an example IoT demo showing a realtime updating dashboard of data streaming from an
-IoT gateway device (based on Eclipse Kura) through the Eclipse Kapua.
+IoT gateway device (based on Eclipse Kura) through an Eclipse Kapua-based instance.
 
 It demonstrates realtime fleet telematics, package tracking, alerting, and a telemetry dashboard showing critical measurements of packages in transit,
 including temperature, humidity, displacement, light levels, etc.
