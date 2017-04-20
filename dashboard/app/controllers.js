@@ -956,8 +956,15 @@ angular.module('app')
     .controller("HeaderController",
         ['$scope', '$location', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
             function ($scope, $location, $http, APP_CONFIG, Notifications, SensorData, Reports) {
+
+                $scope.veh = null;
+                $scope.triggered = false;
+
+                $scope.$on('vehicles:selected', function(evt, veh) {
+                   $scope.veh = veh;
+                });
                 $scope.userInfo = {
-                    fullName: "John Q. Shipper"
+                    fullName: "Mary Q. Shipper"
                 };
 
                 $scope.$on("resetAll", function(evt) {
@@ -986,7 +993,16 @@ angular.module('app')
 
 
                 $scope.cascadingAlert = function() {
-                    SensorData.cascadingAlert();
+                    if (!$scope.veh) {
+                        Notifications.warn("You must first choose a vehicle to simulate failure");
+                        return;
+                    }
+                    if ($scope.triggered) {
+                        Notifications.error('Cascading failure already triggered. To re-run the simulation, reset the data.');
+                        return;
+                    }
+                    $scope.triggered = true;
+                    SensorData.cascadingAlert($scope.veh);
                 };
 
             }])

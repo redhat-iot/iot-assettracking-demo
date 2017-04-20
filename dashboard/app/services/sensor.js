@@ -107,8 +107,8 @@ angular.module('app')
                         targetObj.telemetry.forEach(function(objTel) {
                             var telName = objTel.name;
                             var telMetricName = objTel.metricName;
-                            var value =  metricOverrides[telMetricName] ?
-                                (metricOverrides[telMetricName] * (.95 + 0.05 * Math.random())).toFixed(1) :
+                            var value =  (metricOverrides[listener.objId] && metricOverrides[listener.objId][telMetricName]) ?
+                                (metricOverrides[listener.objId][telMetricName] * (.95 + 0.05 * Math.random())).toFixed(1) :
                                 decodedMetric.doubleValue.toFixed(1);
                             if (telMetricName == decodedMetric.name) {
                                 data.push({
@@ -195,7 +195,7 @@ angular.module('app')
             client.unsubscribe(topicName);
             console.log("UNsubscribed to " + topicName);
             listeners = listeners.filter(function(listener) {
-                return ((!listener.vehicle) | (listener.vehicle.vin != vehicle.vin));
+                return ((!listener.vehicle) || (listener.vehicle.vin != vehicle.vin));
             });
         };
 
@@ -292,7 +292,7 @@ angular.module('app')
             client.send(message);
         }
 
-        factory.cascadingAlert = function() {
+        factory.cascadingAlert = function(vehicle) {
 
             var hitemp =
                 {
@@ -329,26 +329,27 @@ angular.module('app')
                     ]
                 };
 
-
+            metricOverrides[vehicle.vin] = {};
             $interval(function() {
-                metricOverrides['temp'] = 265;
-                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8')
+                metricOverrides[vehicle.vin]['temp'] = 265;
+                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin)
             }, 5000);
 
             $timeout(function() {
-                metricOverrides['oilpress'] = 95;
+                metricOverrides[vehicle.vin]['oilpress'] = 95;
                 $interval(function() {
-                    sendMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8');
+                    sendMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin);
                     for (var i = 1; i <= 20; i++) {
-                        sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/package-' + i);
+                        sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + i);
+                        metricOverrides['pkg-' + i] = {};
+                        metricOverrides['pkg-' + i]['Ambient'] = 42.2;
                     }
-                    metricOverrides['Ambient'] = 42.2;
                 }, 5000);
             }, 15000);
 
 
             $timeout(function() {
-                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/truck-8/alerts');
+                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
                 ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(function(el, idx) {
                     $timeout(function() {
                         sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + el + '/alerts');
