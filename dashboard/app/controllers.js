@@ -954,12 +954,14 @@ angular.module('app')
             }])
 
     .controller("HeaderController",
-        ['$scope', '$location', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
-            function ($scope, $location, $http, APP_CONFIG, Notifications, SensorData, Reports) {
+        ['$scope', '$location', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $location, $timeout, $http, APP_CONFIG, Notifications, SensorData, Reports) {
 
                 $scope.veh = null;
                 $scope.pkg = null;
-                $scope.triggered = false;
+
+                $scope.vehicleAlertColor = 'orange';
+                $scope.packageAlertColor = 'green';
 
                 $scope.$on('vehicles:selected', function(evt, veh) {
                     $scope.veh = veh;
@@ -998,22 +1000,25 @@ angular.module('app')
 
                 $scope.cascadingAlert = function() {
                     if (!$scope.veh) {
-                        Notifications.warn("You must first choose a vehicle to simulate failure");
+                        Notifications.warn("You must first choose a vehicle for which to simulate failure!");
                         return;
                     }
-                    if ($scope.triggered) {
-                        Notifications.error('Cascading failure already triggered. To re-run the simulation, reset the data.');
-                        return;
-                    }
-                    $scope.triggered = true;
+                    $scope.vehicleAlertColor = 'gray';
+                    $timeout(function() {
+                        $scope.vehicleAlertColor = 'orange';
+                    }, 1000);
                     SensorData.cascadingAlert($scope.veh);
                 };
 
                 $scope.cascadingPkgAlert = function() {
                     if (!$scope.pkg) {
-                        Notifications.warn("You must first choose a package to simulate failure");
+                        Notifications.warn("You must first choose a package for which to simulate failure!");
                         return;
                     }
+                    $scope.packageAlertColor = 'gray';
+                    $timeout(function() {
+                        $scope.packageAlertColor = 'green';
+                    }, 1000);
                     SensorData.cascadingPkgAlert($scope.pkg);
                 };
 
