@@ -42,7 +42,7 @@
                         <td>{{vehicle.eta | date:'medium'}}</td>
                         <td><center>
                             <icon ng-if="vehicle.status == 'ok'" class="pficon fa-2x pficon-ok"></icon>
-                            <icon ng-if="vehicle.status != 'ok'" title="Vehicle sensor {{vehicle.status}} detected; vehicle operator notified" class="pficon fa-2x pficon-warning-triangle-o"></icon>
+                            <icon ng-if="vehicle.status != 'ok'" title="Vehicle sensor {{vehicle.status}} detected; vehicle operator notified: {{vehicle.statusMsg}}" class="pficon fa-2x pficon-warning-triangle-o"></icon>
                         </center></td>
                     </tr>
                     </tbody>

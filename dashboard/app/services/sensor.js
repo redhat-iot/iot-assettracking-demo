@@ -2,8 +2,8 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Vehicles', 'Shipments',
-        function ($http, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Vehicles, Shipments) {
+    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Vehicles', 'Shipments',
+        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Vehicles, Shipments) {
         var factory = {},
             client = null,
             msgproto = null,
@@ -57,31 +57,21 @@ angular.module('app')
             }
         }
 
-        function handleAlert(destination, alertPayload) {
-            var matches = alertRegex.exec(destination);
-            var objType = matches[2];
-            var objId = matches[3];
+        function handleAlert(destination, alertObj) {
 
-            switch (objType) {
-                case 'trucks':
-                    $rootScope.$broadcast('vehicle:alert', {
-                        vin: objId
-                    });
-                    break;
-                case 'packages':
-                    Shipments.getAllShipments(function(allShipments) {
-                        allShipments.forEach(function(shipment) {
-                            if (shipment.sensor_id == objId) {
-                                $rootScope.$broadcast('package:alert', {
-                                    vin: shipment.cur_vehicle.vin,
-                                    sensor_id: objId
-                                });
-                            }
-                        });
-                    });
-                    break;
-                default:
-                    console.log("ignoring alert: " + destination);
+            if (alertObj.truck_id != null && alertObj.sensor_id == null) {
+                $rootScope.$broadcast('vehicle:alert', {
+                    vin: alertObj.truck_id,
+                    message: $filter('date')(alertObj.date, 'medium') + ": " +
+                                alertObj.desc + ": " + alertObj.message
+                });
+            } else if (alertObj.truck_id != null && alertObj.sensor_id != null) {
+                $rootScope.$broadcast('package:alert', {
+                    vin: alertObj.truck_id,
+                    sensor_id: alertObj.sensor_id,
+                    message: $filter('date')(alertObj.date, 'medium') + ": " +
+                                alertObj.desc + ": " + alertObj.message
+                });
             }
 
         }
@@ -90,7 +80,7 @@ angular.module('app')
             var destination = message.destinationName;
 
             if (alertRegex.test(destination)) {
-                handleAlert(destination, decoded);
+                handleAlert(destination, JSON.parse(message.payloadString));
             } else {
                 var payload = message.payloadBytes;
                 var decoded =  msgproto.decode(payload);
@@ -310,12 +300,19 @@ angular.module('app')
 
         };
 
-        function sendMsg(obj, topic) {
-            var payload = msgproto.encode(obj).finish();
+        function sendJSONObjectMsg(jsonObj, topic) {
+            var message = new Paho.MQTT.Message(JSON.stringify(jsonObj));
+            message.destinationName = topic;
+            client.send(message);
 
+        }
+
+        function sendKuraMsg(kuraObj, topic) {
+            var payload = msgproto.encode(kuraObj).finish();
             var message = new Paho.MQTT.Message(payload);
             message.destinationName = topic;
             client.send(message);
+
         }
 
         factory.cascadingAlert = function(vehicle) {
@@ -328,17 +325,6 @@ angular.module('app')
                             name: 'temp',
                             type: 'DOUBLE',
                             doubleValue: 265
-                        }
-                    ]
-                };
-            var hipkgtemp =
-                {
-                    timestamp: new Date().getTime(),
-                    metric: [
-                        {
-                            name: 'Ambient',
-                            type: 'DOUBLE',
-                            doubleValue: 42.2
                         }
                     ]
                 };
@@ -356,72 +342,71 @@ angular.module('app')
                 };
 
             metricOverrides[vehicle.vin] = {};
+
             $interval(function() {
                 metricOverrides[vehicle.vin]['temp'] = 265;
-                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin)
+                sendKuraMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin)
             }, 5000);
 
             $timeout(function() {
-                metricOverrides[vehicle.vin]['oilpress'] = 95;
                 $interval(function() {
-                    sendMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin);
-                    // for (var i = 1; i <= 20; i++) {
-                    //     sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + i);
-                    //     metricOverrides['pkg-' + i] = {};
-                    //     metricOverrides['pkg-' + i]['Ambient'] = 42.2;
-                    // }
+                    metricOverrides[vehicle.vin]['oilpress'] = 95;
+                    sendKuraMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin);
                 }, 5000);
-            }, 15000);
+                var hitempalert = {
+                    date: new Date().getTime(),
+                    from: "Operations",
+                    desc: "Truck Maintenance Required",
+                    message: "Your vehicle is in need of maintenance. A maintenance crew has been dispatched to the " + vehicle.destination.name + " facility (bay 4), please arrive no later than 10:0am EDT",
+                    severity: 'OK',
+                    truck_id: vehicle.vin,
+                    sensor_id: null
+                };
 
-
-            $timeout(function() {
-                sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
-                // ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(function(el, idx) {
-                //     $timeout(function() {
-                //         sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + el + '/alerts');
-                //     }, idx * 500);
-                // });
-
-            }, 25000);
+                sendJSONObjectMsg(hitempalert, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
+            }, 10000);
 
         };
 
-            factory.cascadingPkgAlert = function(pkg) {
+        factory.cascadingPkgAlert = function(vehicle, pkg) {
 
-                var hipkgtemp =
-                    {
-                        timestamp: new Date().getTime(),
-                        metric: [
-                            {
-                                name: 'Ambient',
-                                type: 'DOUBLE',
-                                doubleValue: 42.2
-                            }
-                        ]
-                    };
-
-                $timeout(function() {
-                    $interval(function() {
-                        for (var i = 1; i <= 20; i++) {
-                            sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + i);
-                            metricOverrides['pkg-' + i] = {};
-                            metricOverrides['pkg-' + i]['Ambient'] = 42.2;
+            var hipkgtemp =
+                {
+                    timestamp: new Date().getTime(),
+                    metric: [
+                        {
+                            name: 'Ambient',
+                            type: 'DOUBLE',
+                            doubleValue: 42.2
                         }
-                    }, 5000);
+                    ]
+                };
+
+            $timeout(function() {
+                $interval(function() {
+                    sendKuraMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/' + pkg.sensor_id);
+                    metricOverrides[pkg.sensor_id] = {};
+                    metricOverrides[pkg.sensor_id]['Ambient'] = 42.2;
                 }, 5000);
+            }, 5000);
 
 
-                $timeout(function() {
-                    // sendMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
-                    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(function(el, idx) {
-                        $timeout(function() {
-                            sendMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/pkg-' + el + '/alerts');
-                        }, idx * 500);
-                    });
+            $timeout(function() {
+                var hitempalert = {
+                    date: new Date().getTime(),
+                    from: "Operations",
+                    desc: "Client Package Alert",
+                    message: 'Temperature on package ' + pkg.sensor_id + ' (' + pkg.desc + ' for client ' + pkg.customer.name + ') on shelf 12 is out of spec (42.2°C), please verify condition',
+                    severity: 'URGENT',
+                    truck_id: vehicle.vin,
+                    sensor_id: pkg.sensor_id
+                };
 
-                }, 15000);
+                sendJSONObjectMsg(hitempalert, 'Red-Hat/sim-truck/iot-demo/packages/' + pkg.sensor_id + '/alerts');
 
-            };
+            }, 8000);
+
+        };
 
             connectClient(1);
         return factory;

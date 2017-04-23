@@ -80,7 +80,7 @@ public class VehiclesEndpoint {
         Vehicle v = cache.get(vin);
 
         List<Alert> finalAlerts = alerts.stream()
-                .filter(a -> vin.equals(a.getVin()))
+                .filter(a -> vin.equals(a.getTruck_id()))
                 .collect(Collectors.toList());
 
         alertsService.clearAlertsForVehicle(v);

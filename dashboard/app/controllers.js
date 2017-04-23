@@ -574,6 +574,7 @@ angular.module('app')
                     $scope.vehicles.forEach(function (v) {
                         if (v.vin == al.vin) {
                             v.status = "warning";
+                            v.statusMsg = al.message;
                         }
                     });
                 })
@@ -1011,15 +1012,15 @@ angular.module('app')
                 };
 
                 $scope.cascadingPkgAlert = function() {
-                    if (!$scope.pkg) {
-                        Notifications.warn("You must first choose a package for which to simulate failure!");
+                    if (!$scope.pkg || !$scope.veh) {
+                        Notifications.warn("You must first choose a vehicle and package for which to simulate package failure!");
                         return;
                     }
                     $scope.packageAlertColor = 'gray';
                     $timeout(function() {
                         $scope.packageAlertColor = 'green';
                     }, 1000);
-                    SensorData.cascadingPkgAlert($scope.pkg);
+                    SensorData.cascadingPkgAlert($scope.veh, $scope.pkg);
                 };
 
             }])

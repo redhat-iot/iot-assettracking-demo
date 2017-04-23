@@ -3,13 +3,13 @@ package com.redhat.iot.cargodemo.service;
 import com.redhat.iot.cargodemo.model.*;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONObject;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AlertsService implements MqttCallback {
@@ -41,7 +41,7 @@ public class AlertsService implements MqttCallback {
         synchronized (alerts) {
             List<Alert> toRemove = new ArrayList<>();
             for (Alert alert : alerts) {
-                if (alert.getVin().equals(v.getVin())) {
+                if (alert.getTruck_id().equals(v.getVin())) {
                     toRemove.add(alert);
                 }
             }
@@ -106,59 +106,76 @@ public class AlertsService implements MqttCallback {
         subscribeToAlerts();
     }
 
+    private boolean isNull(String s) {
+        return ((s == null) || (s.trim().isEmpty()) || s.trim().equalsIgnoreCase("null"));
+    }
+
+    private Long getLongObj(JSONObject dic, String key) {
+        if (!dic.has(key) || dic.isNull(key)) {
+            return null;
+        } else {
+            return dic.getLong(key);
+        }
+    }
+
+    private String getStringObj(JSONObject dic, String key) {
+        if (!dic.has(key) || dic.isNull(key)) {
+            return null;
+        } else {
+            return dic.getString(key).trim();
+        }
+    }
+
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-        System.out.println("ALERT ARRIVED FOR TOPIC " + topic);
 
-        String[] parts = topic.split("/");
-        if (parts.length != 6) {
-            System.out.println("Message arrived on unknown topic: " + topic + " -- ignoring");
-            return;
+        String payload = mqttMessage.toString();
+
+        System.out.println("ALERT ARRIVED FOR TOPIC " + topic + " payload: " + payload);
+
+        JSONObject j = new JSONObject(payload);
+
+        Long dateObj = getLongObj(j, "date");
+        if (dateObj == null) {
+            dateObj = new Date().getTime();
         }
 
-        String objId = parts[parts.length - 2];
-        String objType = parts[parts.length - 3];
+        Date date = new Date(dateObj);
 
-        if ("trucks".equals(objType)) {
-            Vehicle v = dgService.getVehicles().get(objId);
+        String from = getStringObj(j, "from");
+        String desc = getStringObj(j, "desc");
+        String message = getStringObj(j, "message");
+        String severity = getStringObj(j, "severity");
+        String truck_id = getStringObj(j, "truck_id");
+        String sensor_id = getStringObj(j, "sensor_id");
+
+        if (!isNull(truck_id) && isNull(sensor_id)) {
+
+            Vehicle v = dgService.getVehicles().get(truck_id.trim());
             if (v == null) {
-                System.out.println("Cannot find vehicle " + objId + ", ignoring alert");
+                System.out.println("Cannot find vehicle " + truck_id + ", ignoring alert");
                 return;
             }
             v.setStatus("warning");
             dgService.getVehicles().put(v.getVin(), v);
-            addAlert(new Alert("vehicle alert", v.getVin(), null));
-        } else if ("packages".equals(objType)) {
+            addAlert(new Alert(date, from, desc, message, severity, truck_id, null));
+        } else if (!isNull(truck_id) && !isNull(sensor_id)) {
 
             Map<String, Shipment> shipCache = dgService.getShipments();
-            List<Shipment> shipments = shipCache.keySet().stream()
-                    .map(shipCache::get)
-                    .filter(s -> objId.equals(s.getSensor_id()))
-                    .collect(Collectors.toList());
 
+            Shipment s = shipCache.get(sensor_id + "/" + truck_id);
 
-            if (shipments == null || shipments.size() <= 0) {
-                System.out.println("Cannot find shipment " + objId + ", ignoring alert");
+            if (s == null) {
+                System.out.println("Cannot find shipment for sensor_id=" + sensor_id + " truck_id=" + truck_id + ", ignoring alert");
                 return;
             }
 
-            for (Shipment alertShip : shipments) {
-                alertShip.setStatus("warning");
-                dgService.getShipments().put(alertShip.getSensor_id() + "/" + alertShip.getCur_vehicle().getVin(), alertShip);
-                addAlert(new Alert("package alert", alertShip.getCur_vehicle().getVin(), alertShip.getSensor_id()));
-            }
+            s.setStatus("warning");
+            dgService.getShipments().put(sensor_id + "/" + truck_id, s);
+            addAlert(new Alert(date, from, desc, message, severity, truck_id, sensor_id));
         } else {
-            System.out.println("UNknown alert object type " + objType + ", ignoring alert");
+            System.out.println("truck_id and sensor_id required and one of them is null, ignoring");
         }
-
-
-//        System.out.println("Payload: " + mqttMessage.toString());
-//
-//        KuraPayloadProto.KuraPayload payload = KuraPayloadProto.KuraPayload.parseFrom(mqttMessage.getPayload());
-//        for (KuraPayloadProto.KuraPayload.KuraMetric metric : payload.getMetricList()) {
-//            System.out.println("Kura metric name: " + metric.getName());
-//        }
-
     }
 
     @Override
