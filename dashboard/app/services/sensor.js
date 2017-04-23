@@ -59,16 +59,16 @@ angular.module('app')
 
         function handleAlert(destination, alertObj) {
 
-            if (alertObj.truck_id != null && alertObj.sensor_id == null) {
+            if (alertObj.truckid != null && alertObj.sensorid == null) {
                 $rootScope.$broadcast('vehicle:alert', {
-                    vin: alertObj.truck_id,
+                    vin: alertObj.truckid,
                     message: $filter('date')(alertObj.date, 'medium') + ": " +
                                 alertObj.desc + ": " + alertObj.message
                 });
-            } else if (alertObj.truck_id != null && alertObj.sensor_id != null) {
+            } else if (alertObj.truckid != null && alertObj.sensorid != null) {
                 $rootScope.$broadcast('package:alert', {
-                    vin: alertObj.truck_id,
-                    sensor_id: alertObj.sensor_id,
+                    vin: alertObj.truckid,
+                    sensor_id: alertObj.sensorid,
                     message: $filter('date')(alertObj.date, 'medium') + ": " +
                                 alertObj.desc + ": " + alertObj.message
                 });
@@ -358,9 +358,9 @@ angular.module('app')
                     from: "Operations",
                     desc: "Truck Maintenance Required",
                     message: "Your vehicle is in need of maintenance. A maintenance crew has been dispatched to the " + vehicle.destination.name + " facility (bay 4), please arrive no later than 10:0am EDT",
-                    severity: 'OK',
-                    truck_id: vehicle.vin,
-                    sensor_id: null
+                    type: 'VEHICLE',
+                    truckid: vehicle.vin,
+                    sensorid: null
                 };
 
                 sendJSONObjectMsg(hitempalert, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
@@ -397,9 +397,9 @@ angular.module('app')
                     from: "Operations",
                     desc: "Client Package Alert",
                     message: 'Temperature on package ' + pkg.sensor_id + ' (' + pkg.desc + ' for client ' + pkg.customer.name + ') on shelf 12 is out of spec (42.2°C), please verify condition',
-                    severity: 'URGENT',
-                    truck_id: vehicle.vin,
-                    sensor_id: pkg.sensor_id
+                    type: 'PACKAGE',
+                    truckid: vehicle.vin,
+                    sensorid: pkg.sensor_id
                 };
 
                 sendJSONObjectMsg(hitempalert, 'Red-Hat/sim-truck/iot-demo/packages/' + pkg.sensor_id + '/alerts');

@@ -41,7 +41,7 @@ public class AlertsService implements MqttCallback {
         synchronized (alerts) {
             List<Alert> toRemove = new ArrayList<>();
             for (Alert alert : alerts) {
-                if (alert.getTruck_id().equals(v.getVin())) {
+                if (alert.getTruckid().equals(v.getVin())) {
                     toRemove.add(alert);
                 }
             }
@@ -145,9 +145,9 @@ public class AlertsService implements MqttCallback {
         String from = getStringObj(j, "from");
         String desc = getStringObj(j, "desc");
         String message = getStringObj(j, "message");
-        String severity = getStringObj(j, "severity");
-        String truck_id = getStringObj(j, "truck_id");
-        String sensor_id = getStringObj(j, "sensor_id");
+        String type = getStringObj(j, "type");
+        String truck_id = getStringObj(j, "truckid");
+        String sensor_id = getStringObj(j, "sensorid");
 
         if (!isNull(truck_id) && isNull(sensor_id)) {
 
@@ -158,7 +158,7 @@ public class AlertsService implements MqttCallback {
             }
             v.setStatus("warning");
             dgService.getVehicles().put(v.getVin(), v);
-            addAlert(new Alert(date, from, desc, message, severity, truck_id, null));
+            addAlert(new Alert(date, from, desc, message, type, truck_id, null));
         } else if (!isNull(truck_id) && !isNull(sensor_id)) {
 
             Map<String, Shipment> shipCache = dgService.getShipments();
@@ -172,7 +172,7 @@ public class AlertsService implements MqttCallback {
 
             s.setStatus("warning");
             dgService.getShipments().put(sensor_id + "/" + truck_id, s);
-            addAlert(new Alert(date, from, desc, message, severity, truck_id, sensor_id));
+            addAlert(new Alert(date, from, desc, message, type, truck_id, sensor_id));
         } else {
             System.out.println("truck_id and sensor_id required and one of them is null, ignoring");
         }

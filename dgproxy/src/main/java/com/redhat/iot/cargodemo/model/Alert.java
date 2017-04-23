@@ -9,18 +9,18 @@ public class Alert {
     private String from;
     private String desc;
     private String message;
-    private String severity;
-    private String truck_id;
-    private String sensor_id;
+    private String type;
+    private String truckid;
+    private String sensorid;
 
-    public Alert(Date date, String from, String desc, String message, String severity, String truck_id, String sensor_id) {
+    public Alert(Date date, String from, String desc, String message, String type, String truckid, String sensorid) {
         this.date = date;
         this.from = from;
         this.desc = desc;
         this.message = message;
-        this.severity = severity;
-        this.truck_id = truck_id;
-        this.sensor_id = sensor_id;
+        this.type = type;
+        this.truckid = truckid;
+        this.sensorid = sensorid;
     }
 
     public Date getDate() {
@@ -55,27 +55,27 @@ public class Alert {
         this.message = message;
     }
 
-    public String getSeverity() {
-        return severity;
+    public String getType() {
+        return type;
     }
 
-    public void setSeverity(String severity) {
-        this.severity = severity;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getTruck_id() {
-        return truck_id;
+    public String getTruckid() {
+        return truckid;
     }
 
-    public void setTruck_id(String truck_id) {
-        this.truck_id = truck_id;
+    public void setTruckid(String truckid) {
+        this.truckid = truckid;
     }
 
-    public String getSensor_id() {
-        return sensor_id;
+    public String getSensorid() {
+        return sensorid;
     }
 
-    public void setSensor_id(String sensor_id) {
-        this.sensor_id = sensor_id;
+    public void setSensorid(String sensorid) {
+        this.sensorid = sensorid;
     }
 }
