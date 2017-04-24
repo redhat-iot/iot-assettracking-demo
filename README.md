@@ -75,6 +75,25 @@ You should see the following pods and their status:
 |simulator-1-xxx      |    1/1      | Running |
 |sql-1-xxx            |    1/1      | Running |
 
+Eclipse Kapua API Documentation
+-------------------------------
+Eclipse Kapua exposes a REST API which can be used to access Kapua data and invoke Kapua operations. The REST API application is running as a dedicated Java process.
+
+For example, to use the `curl` command login to Eclipse Kapua and retrieve an authentication token:
+
+```
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"password": ["your_password"], "username": "your_username"}' 'http://api-redhat-iot.domain/v1/authentication/user'
+```
+
+Once logged in, the retrieved token can be passed for future API calls, e.g.
+
+```
+curl -X GET --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'Authorization: Bearer <AUTH_TOKEN_HERE>' http://api-redhat-iot.domain/v1/my_scope/devices
+```
+
+The complete API documentation can accessed using the URL of the `api` route, for example `http://api-redhat-iot.domain/doc`. More information on the REST API can be found in the [Eclipse Kapua user guide](http://download.eclipse.org/kapua/docs/develop/user-manual/en/rest.html).
+
+
 Add template to "Add to project"
 --------------------------------
 The following command will add the template and the options to the "Add to project" screen in the 
