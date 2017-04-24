@@ -2,8 +2,8 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Vehicles', 'Shipments',
-        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Vehicles, Shipments) {
+    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Reports',
+        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Reports) {
         var factory = {},
             client = null,
             msgproto = null,
@@ -59,13 +59,13 @@ angular.module('app')
 
         function handleAlert(destination, alertObj) {
 
-            if (alertObj.truckid != null && alertObj.sensorid == null) {
+            if (alertObj.type == 'VEHICLE') {
                 $rootScope.$broadcast('vehicle:alert', {
                     vin: alertObj.truckid,
                     message: $filter('date')(alertObj.date, 'medium') + ": " +
                                 alertObj.desc + ": " + alertObj.message
                 });
-            } else if (alertObj.truckid != null && alertObj.sensorid != null) {
+            } else if (alertObj.type == 'PACKAGE') {
                 $rootScope.$broadcast('package:alert', {
                     vin: alertObj.truckid,
                     sensor_id: alertObj.sensorid,
@@ -73,6 +73,8 @@ angular.module('app')
                                 alertObj.desc + ": " + alertObj.message
                 });
             }
+
+            Reports.refresh();
 
         }
 
