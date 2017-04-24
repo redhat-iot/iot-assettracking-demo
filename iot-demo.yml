@@ -104,6 +104,10 @@ parameters:
 - description: Simulator Name Custom Prefix
   name: KSIM_BASE_NAME
   value: "truck-"
+- description: Displayed title of web dashboard
+  name: DASHBOARD_WEB_TITLE
+  value: "Red Hat + Eurotech IoT Fleet Telematics Demo"
+  required: true
 
 labels:
   demo: summit2017
@@ -729,6 +733,8 @@ objects:
             value: ${DATASTORE_PROXY_SERVICE}
           - name: GOOGLE_MAPS_API_KEY
             value: ${GOOGLE_MAPS_API_KEY}
+          - name: DASHBOARD_WEB_TITLE
+            value: ${DASHBOARD_WEB_TITLE}
           image: dashboard
           imagePullPolicy: Always
           name: dashboard

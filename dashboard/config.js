@@ -16,7 +16,8 @@ var config =
     // Google API Key (can be blank, resulting in throttling for high usage)
     GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || "",
 
-    STATIC_TELEMETRY_GRAPHS: process.env.STATIC_TELEMETRY_GRAPHS || 'Humidity,Pressure'
+    STATIC_TELEMETRY_GRAPHS: process.env.STATIC_TELEMETRY_GRAPHS || 'Humidity,Pressure',
+    DASHBOARD_WEB_TITLE: process.env.DASHBOARD_WEB_TITLE || ''
 };
 
 module.exports = config;

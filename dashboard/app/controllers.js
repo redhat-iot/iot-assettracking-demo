@@ -955,14 +955,16 @@ angular.module('app')
             }])
 
     .controller("HeaderController",
-        ['$scope', '$location', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
-            function ($scope, $location, $timeout, $http, APP_CONFIG, Notifications, SensorData, Reports) {
+        ['$scope', '$window', '$location', '$timeout', '$http', 'APP_CONFIG', 'Notifications', 'SensorData', 'Reports',
+            function ($scope, $window, $location, $timeout, $http, APP_CONFIG, Notifications, SensorData, Reports) {
 
                 $scope.veh = null;
                 $scope.pkg = null;
 
                 $scope.vehicleAlertColor = 'orange';
                 $scope.packageAlertColor = 'green';
+
+                $scope.headerTitle = $window.document.title = APP_CONFIG.DASHBOARD_WEB_TITLE;
 
                 $scope.$on('vehicles:selected', function(evt, veh) {
                     $scope.veh = veh;
