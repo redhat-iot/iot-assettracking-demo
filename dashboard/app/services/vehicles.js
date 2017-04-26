@@ -6,7 +6,7 @@ angular.module('app')
 
 	var factory = {},
 		vehicles = [],
-		configRestEndpoint = "http://" + APP_CONFIG.DATASTORE_REST_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api/vehicles';
+		configRestEndpoint = "http://" + APP_CONFIG.DATASTORE_REST_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + ":" + APP_CONFIG.DATASTORE_REST_PORT+ '/api/vehicles';
 
 
 	factory.getVehicles = function() {

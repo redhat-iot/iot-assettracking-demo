@@ -9,7 +9,7 @@ angular.module('app')
         summaries = [],
         facilities = [],
 
-		configRestEndpoint = "http://" + APP_CONFIG.DATASTORE_REST_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api';
+		configRestEndpoint = "http://" + APP_CONFIG.DATASTORE_REST_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + ":" + APP_CONFIG.DATASTORE_REST_PORT + '/api';
 
 
 	factory.getSummaries = function() {
