@@ -10,6 +10,9 @@ angular.module('app')
         allShipments = [],
 		configRestEndpoint = "http://" + APP_CONFIG.DATASTORE_REST_HOSTNAME + '.' + $location.host().replace(/^.*?\.(.*)/g,"$1") + '/api/shipments';
 
+	    factory.getCurrentShipments = function() {
+	        return shipments;
+        };
 
         factory.getShipments = function(vehicle, cb) {
             // get config

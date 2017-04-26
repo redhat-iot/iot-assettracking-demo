@@ -2,8 +2,8 @@
 
 angular.module('app')
 
-    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Reports',
-        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Reports) {
+    .factory('SensorData', ['$http', '$filter', '$timeout', '$interval', '$rootScope', '$location', '$q', 'APP_CONFIG', 'Notifications', 'Reports', 'Shipments', 'Vehicles',
+        function ($http, $filter, $timeout, $interval, $rootScope, $location, $q, APP_CONFIG, Notifications, Reports, Shipments, Vehicles) {
         var factory = {},
             client = null,
             msgproto = null,
@@ -319,6 +319,16 @@ angular.module('app')
 
         factory.cascadingAlert = function(vehicle) {
 
+            var intervals = [];
+
+            function stopAll() {
+                intervals.forEach(function(i) {
+                    $interval.cancel(i);
+                    i = undefined;
+                });
+                intervals = [];
+            }
+
             var hitemp =
                 {
                     timestamp: new Date().getTime(),
@@ -345,16 +355,16 @@ angular.module('app')
 
             metricOverrides[vehicle.vin] = {};
 
-            $interval(function() {
+            intervals.push($interval(function() {
                 metricOverrides[vehicle.vin]['temp'] = 265;
                 sendKuraMsg(hitemp, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin)
-            }, 5000);
+            }, 5000));
 
             $timeout(function() {
-                $interval(function() {
+                intervals.push($interval(function() {
                     metricOverrides[vehicle.vin]['oilpress'] = 95;
                     sendKuraMsg(hipress, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin);
-                }, 5000);
+                }, 5000));
                 var hitempalert = {
                     date: new Date().getTime(),
                     from: "Operations",
@@ -368,9 +378,24 @@ angular.module('app')
                 sendJSONObjectMsg(hitempalert, 'Red-Hat/sim-truck/iot-demo/trucks/' + vehicle.vin + '/alerts');
             }, 10000);
 
-        };
+            // stop everything after 2 minutes
+            $timeout(function() {
+                stopAll();
+            }, 120000);
+
+            };
 
         factory.cascadingPkgAlert = function(vehicle, pkg) {
+
+            var intervals = [];
+
+            function stopAll() {
+                intervals.forEach(function(i) {
+                    $interval.cancel(i);
+                    i = undefined;
+                });
+                intervals = [];
+            }
 
             var hipkgtemp =
                 {
@@ -385,11 +410,11 @@ angular.module('app')
                 };
 
             $timeout(function() {
-                $interval(function() {
+                intervals.push($interval(function() {
                     sendKuraMsg(hipkgtemp, 'Red-Hat/sim-truck/iot-demo/packages/' + pkg.sensor_id);
                     metricOverrides[pkg.sensor_id] = {};
                     metricOverrides[pkg.sensor_id]['Ambient'] = 42.2;
-                }, 5000);
+                }, 5000));
             }, 5000);
 
 
@@ -408,8 +433,26 @@ angular.module('app')
 
             }, 8000);
 
+            // start looking to clear alerts after 20s
+            $timeout(function() {
+                intervals.push($interval(function() {
+                    Vehicles.reset();
+                    Shipments.getCurrentShipments().filter(function(s) { return s.sensor_id == pkg.sensor_id }).forEach(function(s) {
+                        if (s.status == 'ok') {
+                            stopAll();
+                            metricOverrides[s.sensor_id] = null;
+                        }
+                    });
+                }, 5000));
+            }, 20000);
+
+            // stop everything after a 2 minutes
+            $timeout(function() {
+                stopAll();
+            }, 120000);
         };
 
-            connectClient(1);
+        connectClient(1);
+
         return factory;
     }]);

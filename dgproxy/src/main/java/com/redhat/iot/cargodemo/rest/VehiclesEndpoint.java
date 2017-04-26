@@ -16,6 +16,7 @@ package com.redhat.iot.cargodemo.rest;/*
  */
 
 import com.redhat.iot.cargodemo.model.Alert;
+import com.redhat.iot.cargodemo.model.Shipment;
 import com.redhat.iot.cargodemo.model.Vehicle;
 import com.redhat.iot.cargodemo.service.AlertsService;
 import com.redhat.iot.cargodemo.service.DGService;
@@ -88,6 +89,34 @@ public class VehiclesEndpoint {
         return finalAlerts;
     }
 
+    @POST
+    @Path("/{vin}/resetStatus")
+    public void clearAll(@PathParam("vin") String vin) {
+        Map<String, Vehicle> cache = dgService.getVehicles();
+        Vehicle v = cache.get(vin);
+        v.setStatus("ok");
+        cache.put(v.getVin(), v);
+
+    }
+
+    @POST
+    @Path("/{vin}/{pkgid}/resetStatus")
+    public void clearPkg(@PathParam("vin") String vin, @PathParam("pkgid") String pkgid) {
+        Map<String, Vehicle> cache = dgService.getVehicles();
+
+        Map<String, Shipment> shipCache = dgService.getShipments();
+
+        // TODO: use DG queries properly
+        List<Shipment> vehiclePackages = shipCache.keySet().stream()
+                .map(shipCache::get)
+                .filter(shipment -> vin.equals(shipment.getCur_vehicle().getVin()))
+                .collect(Collectors.toList());
+
+        for (Shipment pkg : vehiclePackages) {
+            pkg.setStatus("ok");
+            shipCache.put(pkg.getSensor_id() + "/" + pkg.getCur_vehicle().getVin(), pkg);
+        }
+    }
 
 }
 

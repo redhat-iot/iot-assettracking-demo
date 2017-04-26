@@ -566,7 +566,6 @@ angular.module('app')
                 };
 
                 $scope.$on('vehicles:updated', function(event) {
-                    // you could inspect the data to see if what you care about changed, or just update your own scope
                     $scope.vehicles = Vehicles.getVehicles();
                 });
 
@@ -892,6 +891,14 @@ angular.module('app')
                 $scope.selectedVehicle = null;
                 $scope.shipalerts = [];
 
+                $scope.$on('vehicles:updated', function(event) {
+                    if ($scope.selectedVehicle) {
+                        Shipments.getShipments($scope.selectedVehicle, function(shipments) {
+                            $scope.shipments = shipments;
+                        });
+                    }
+                });
+
                 $scope.$on('vehicles:selected', function(event, vehicle) {
                     $scope.selectedVehicle = vehicle;
                     Shipments.getShipments(vehicle, function(shipments) {
@@ -1028,8 +1035,8 @@ angular.module('app')
             }])
 
 .controller("VehiclePanelController",
-    ['$scope', '$interval', '$location', '$http', 'APP_CONFIG', 'Notifications', 'SensorData',
-        function ($scope, $interval, $location, $http, APP_CONFIG, Notifications, SensorData) {
+    ['$scope', '$interval', '$location', '$http', 'APP_CONFIG', 'Notifications', 'Vehicles', 'SensorData',
+        function ($scope, $interval, $location, $http, APP_CONFIG, Notifications, Vehicles, SensorData) {
 
             $scope.selectedVehicle = null;
             $scope.truckImageType = 'plain';
@@ -1055,6 +1062,22 @@ angular.module('app')
                 });
                 $scope.truckImageType = truckType;
             }
+
+            $scope.$on('vehicles:updated', function(event) {
+                if ($scope.selectedVehicle) {
+                    Vehicles.getVehicles().forEach(function(v) {
+                        if (v.vin == $scope.selectedVehicle.vin) {
+                            SensorData.unsubscribeVehicle($scope.selectedVehicle);
+                            $scope.selectedVehicle = v;
+                            SensorData.subscribeVehicle(v, function(data) {
+                                $scope.$apply(function() {
+                                    addData(v, data);
+                                });
+                            });
+                        }
+                    });
+                }
+            });
 
             $scope.$on('vehicles:selected', function(event, vehicle) {
                 if ($scope.selectedVehicle) {

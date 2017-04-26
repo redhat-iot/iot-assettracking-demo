@@ -149,7 +149,7 @@ public class AlertsService implements MqttCallback {
         String truck_id = getStringObj(j, "truckid");
         String sensor_id = getStringObj(j, "sensorid");
 
-        if (!isNull(truck_id) && isNull(sensor_id)) {
+        if ("VEHICLE".equalsIgnoreCase(type)) {
 
             Vehicle v = dgService.getVehicles().get(truck_id.trim());
             if (v == null) {
@@ -159,7 +159,7 @@ public class AlertsService implements MqttCallback {
             v.setStatus("warning");
             dgService.getVehicles().put(v.getVin(), v);
             addAlert(new Alert(date, from, desc, message, type, truck_id, null));
-        } else if (!isNull(truck_id) && !isNull(sensor_id)) {
+        } else if ("PACKAGE".equalsIgnoreCase(type)) {
 
             Map<String, Shipment> shipCache = dgService.getShipments();
 
@@ -174,7 +174,7 @@ public class AlertsService implements MqttCallback {
             dgService.getShipments().put(sensor_id + "/" + truck_id, s);
             addAlert(new Alert(date, from, desc, message, type, truck_id, sensor_id));
         } else {
-            System.out.println("truck_id and sensor_id required and one of them is null, ignoring");
+            System.out.println("Unknown alert type (" + type + "), ignoring");
         }
     }
 
