@@ -88,7 +88,6 @@ parameters:
   required: true
 - description: Datastore password
   name: ADDITIONAL_SENSOR_IDS
-  value: "B0:32:34:34:34:34,C0:43:34:23:24"
   required: false
 - description: Number of Kura Simulators to run
   name: KSIM_NUM_GATEWAYS

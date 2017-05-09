@@ -121,7 +121,7 @@ public class UtilsEndpoint {
                 String[] ids = addl.split(",");
                 for (String id: ids) {
                     addShipment(customerCache, facilitiesCache, shipmentCache, vin, newVehicle, v_dest, id.trim(),
-                            rand(PKG_DESCS) + " [IOT]");
+                            rand(PKG_DESCS) + " [" + id.trim() + "]");
                 }
             }
 
