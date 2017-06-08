@@ -18,7 +18,8 @@
     "angular-route": "1.5.11",
     "angular-sanitize": "1.5.11",
     "angular-scrollable-table": "1.1.2",
-    "angular-moment": "1.0.0"
+    "angular-moment": "1.0.0",
+    "c3": "0.4.11"    
   },
   "resolutions": {
     "jquery": "~2.1.4",
