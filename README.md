@@ -93,3 +93,25 @@ oc delete all --all -n redhat-iot && oc delete configmap hawkular-openshift-agen
 ```
 This will delete everything but the project "Red Hat IoT". This is suitable for testing new scripts, template,
 etc.
+
+Troubleshooting
+---------------
+
+1. Docker daemon is not running... or is running insecurely...
+
+**On Mac**
+Start the docker engine app (docker engine icon will show up in the status bar)
+ 
+**On RHEL**
+Create the docker group.
+```
+$ sudo groupadd docker
+```
+
+Add the user to the docker & VM groups.
+```
+$ sudo usermod -aG docker $USER
+```
+Log out and log back into the system.
+
+
