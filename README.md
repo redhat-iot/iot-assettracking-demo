@@ -5,17 +5,22 @@ This project provides instructions for installing OpenShift and setting up of Fl
 To enable the OpenShift environment, we’ll be using CDK 3.0 (Red Hat Container Development Kit) that uses Minishift, a single-user version of OpenShift (OCP v3.5).  The latest version of Openshift & CDK (OCP v3.5 via CDK v3.0) has been tested here to work on RHEL 7.3 but should also work on RHEL 7.2 and OSX v10.x.  Once OpenShift is running, you can use a web console from your browser or work from the command line with the oc command to interact with the IoT demo.
 
 The Container Development Kit is comprised of several technologies:
+
 **Red Hat Enterprise Linux** is the operating system installed on a VM. We will control the Minishift cluster through that installation, rather than the operating system installed on your host system (laptop).
+
 **Kernel Virtual Machine (KVM)** technology within the linux kernel. A Virtual Machine, usually called a "VM" or "box", is a fully virtualized system running an operating system. The kernel of a KVM box is independent of the kernel on the host system. In the Container Development Kit, a KVM box running Red Hat Enterprise Linux serves as the host for a cluster of containers.
+
 **Docker** runs a copy of an operating system in a container, except for the kernel. As a result, it can directly access hardware on the host system. It provides a higher level of security and independence from operating system changes, and helps with maintaining the same configuration across a cluster.
+
 **OpenShift** is a system for managing docker containers on Red Hat Enterprise Linux virtual machines. A VM containing containerized apps, managed by OpenShift, is called a "pod". OpenShift deploys pods to host systems in a cluster as needed, often running more than one pod on each computer system.
+
 **Minishift** is a version of OpenShift that runs on a single developer system, rather than a cluster of physical machines. It forms the core of the Container Development Kit. Minishift also controls the Container Development Kit installation and configuration.
 
 Hardware requirements
 ---------------------
-BIOS support. The host computer system must have hardware virtualization enabled in the BIOS.
-Minimum 4GiB VM memory, recommend >8GiB memory
-Minimum 2 vCPUs, recommend 4+ vCPUs
+- BIOS support. The host computer system must have hardware virtualization enabled in the BIOS.
+- Minimum 4GiB VM memory, recommend >8GiB memory
+- Minimum 2 vCPUs, recommend 4+ vCPUs
 
 Hypervisor requirements
 -----------------------
