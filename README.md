@@ -29,7 +29,8 @@ The Container Development Kit requires a hypervisor to start the virtual machine
 Minishift embeds VirtualBox and VMware Fusion drivers so no additional steps are required to use them. However, other drivers (KVM and Xhyve) require manual installation. 
 
 Depending on your host OS, you have the choice of the following hypervisors:
-**macOS**
+
+**Mac**
 - xhyve (default)
 - VirtualBox
 
@@ -40,24 +41,36 @@ Depending on your host OS, you have the choice of the following hypervisors:
 *Note: You'll also need a Red Hat account or a Red Hat Developer account.*
 
 Install the hypervisor on the RHEL System
+------------------------------------------
+
 Install libvirt and qemu-kvm
+```
 $ sudo yum install libvirt qemu-kvm
+```
 
 Add yourself to the libvirt group so that you do not need to use sudo:
+```
 $ sudo usermod -a -G libvirt $USER
+```
 
 Update your current session to apply the group change:
+```
 $ newgrp libvirt
+```
 
 Install the Docker Machine
+```
 $ curl -L https://github.com/docker/machine/releases/download/v0.10.0/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine
 $ chmod +x /tmp/docker-machine
 $ sudo mv /tmp/docker-machine /usr/local/bin/docker-machine
+```
 
 Install the Docker Machine KVM driver
+```
 $ curl -L https://github.com/dhiltgen/docker-machine-kvm/releases/download/v0.8.2/docker-machine-driver-kvm >/tmp/docker-machine-driver-kvm
 $ chmod +x /tmp/docker-machine-driver-kvm
 $ sudo mv /tmp/docker-machine-driver-kvm /usr/local/bin/docker-machine-driver-kvm
+```
 
 RHEL Install References
 The above steps can also be run as a script provided by Michael Surbey:
