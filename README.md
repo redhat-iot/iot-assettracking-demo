@@ -1,8 +1,8 @@
 Install OpenShift and Fleet Telematics & Asset Tracking IoT Demo
-==================================================
+================================================================
 This project provides instructions for installing OpenShift and setting up of Fleet Telematics & Asset Tracking IoT Demo. 
 
-To enable the OpenShift environment, we’ll be using CDK 3.0 (Red Hat Container Development Kit) that uses Minishift, a single-user version of OpenShift (OCP v3.5).  The latest version of Openshift & CDK (OCP v3.5 via CDK v3.0) has been tested here to work on RHEL 7.3 but should also work on RHEL 7.2 and OSX v10.x.  Once OpenShift is running, you can use a web console from your browser or work from the command line with the oc command to interact with the IoT demo.
+To enable the OpenShift environment, we’ll be using CDK 3.0 (Red Hat Container Development Kit) that uses Minishift, a single-user version of OpenShift (OCP v3.5). Once OpenShift is running, you can use a web console from your browser or work from the command line with the oc command to interact with the IoT demo.
 
 The Container Development Kit is comprised of several technologies:
 
@@ -124,29 +124,32 @@ $ minishift --username=<Red Hat username> --password=<Red Hat password> --vm-dri
 ```
 
 Set up the Demo
-Once OpenShift is installed and running, follow the instructions on the github to set up the IoT demo (as shown below).
+Once OpenShift is installed and running, follow the instructions below to set up the Fleet Telematics & Asset Tracking IoT Demo:
 
 Clone the demo repo
+```
 $ git clone https://github.com/redhat-iot/summit2017
 $ cd summit2017
-
+```
 
 Create a new OpenShift project and deploy the demo components
+```
 $ oc new-project redhat-iot --display-name="Red Hat IoT Demo"
 $ oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default -n $(oc project -q)
 $ ./openshift-deploy.sh
+```
+
 Add imagestream definitions for wildfly and jboss-datagrid 
+```
 $ oc login -u system:admin
 $ oc create -n openshift -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/jboss-image-streams.json
 $ oc create -n openshift -f https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json
-
-
+```
 
 This is an example IoT demo showing a realtime updating dashboard of data streaming from an
 IoT gateway device (based on Eclipse Kura) through an Eclipse Kapua-based instance.
 
-It demonstrates realtime fleet telematics, package tracking, alerting, and a telemetry dashboard showing critical measurements of packages in transit,
-including temperature, humidity, displacement, light levels, etc.
+It demonstrates realtime fleet telematics, package tracking, alerting, and a telemetry dashboard showing critical measurements of packages in transit, including temperature, humidity, displacement, light levels, etc.
 
 ![Dashboard Screenshot](docs/screenshots/fleet.png "Dashboard Screenshot")
 ![Dashboard Screenshot](docs/screenshots/exec.png "Exec Dashboard Screenshot")
@@ -208,23 +211,5 @@ etc.
 
 Troubleshooting
 ---------------
-**1. Docker daemon is not running... or is running insecurely...**
-
-*On Mac*
-
-Start the docker engine app (docker engine icon will show up in the status bar)
- 
-*On RHEL*
-
-Create the docker group.
-```
-$ sudo groupadd docker
-```
-
-Add the user to the docker & VM groups.
-```
-$ sudo usermod -aG docker $USER
-```
-Log out and log back into the system.
 
 
