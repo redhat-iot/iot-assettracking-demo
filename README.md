@@ -97,13 +97,13 @@ etc.
 Troubleshooting
 ---------------
 
-=== Docker daemon is not running... or is running insecurely...
+## 1. Docker daemon is not running... or is running insecurely...
 
-**On Mac**
+*On Mac*
 
 Start the docker engine app (docker engine icon will show up in the status bar)
  
-**On RHEL**
+*On RHEL*
 
 Create the docker group.
 ```
