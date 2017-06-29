@@ -96,8 +96,7 @@ etc.
 
 Troubleshooting
 ---------------
-
-## 1. Docker daemon is not running... or is running insecurely...
+**1. Docker daemon is not running... or is running insecurely...**
 
 *On Mac*
 
