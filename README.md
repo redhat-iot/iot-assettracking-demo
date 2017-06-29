@@ -4,17 +4,17 @@ This project provides instructions for installing OpenShift and setting up of Fl
 
 To enable the OpenShift environment, we’ll be using CDK 3.0 (Red Hat Container Development Kit) that uses Minishift, a single-user version of OpenShift (OCP v3.5). Once OpenShift is running, you can use a web console from your browser or work from the command line with the oc command to interact with the IoT demo.
 
-The Container Development Kit is comprised of several technologies:
+The CDK is comprised of several technologies:
 
 **Red Hat Enterprise Linux** is the operating system installed on a VM. We will control the Minishift cluster through that installation, rather than the operating system installed on your host system (laptop).
 
-**Kernel Virtual Machine (KVM)** technology within the linux kernel. A Virtual Machine, usually called a "VM" or "box", is a fully virtualized system running an operating system. The kernel of a KVM box is independent of the kernel on the host system. In the Container Development Kit, a KVM box running Red Hat Enterprise Linux serves as the host for a cluster of containers.
+**Kernel Virtual Machine (KVM)** technology within the linux kernel. A Virtual Machine, usually called a "VM" or "box", is a fully virtualized system running an operating system. The kernel of a KVM box is independent of the kernel on the host system. In the CDK, a KVM box running Red Hat Enterprise Linux serves as the host for a cluster of containers.
 
 **Docker** runs a copy of an operating system in a container, except for the kernel. As a result, it can directly access hardware on the host system. It provides a higher level of security and independence from operating system changes, and helps with maintaining the same configuration across a cluster.
 
 **OpenShift** is a system for managing docker containers on Red Hat Enterprise Linux virtual machines. A VM containing containerized apps, managed by OpenShift, is called a "pod". OpenShift deploys pods to host systems in a cluster as needed, often running more than one pod on each computer system.
 
-**Minishift** is a version of OpenShift that runs on a single developer system, rather than a cluster of physical machines. It forms the core of the Container Development Kit. Minishift also controls the Container Development Kit installation and configuration.
+**Minishift** is a version of OpenShift that runs on a single developer system, rather than a cluster of physical machines. It forms the core of the CDK. Minishift also controls the CDK installation and configuration.
 
 Hardware requirements
 ---------------------
@@ -24,7 +24,7 @@ Hardware requirements
 
 Hypervisor requirements
 -----------------------
-The Container Development Kit requires a hypervisor to start the virtual machine on which the OpenShift cluster is provisioned. Make sure that the hypervisor of your choice is installed and enabled on your system before you start the Container Development Kit.
+The CDK requires a hypervisor to start the virtual machine on which the OpenShift cluster is provisioned. Make sure that the hypervisor of your choice is installed and enabled on your system before you start the CDK.
 
 Minishift embeds VirtualBox and VMware Fusion drivers so no additional steps are required to use them. However, other drivers (KVM and Xhyve) require manual installation. 
 
@@ -71,13 +71,6 @@ $ curl -L https://github.com/dhiltgen/docker-machine-kvm/releases/download/v0.8.
 $ chmod +x /tmp/docker-machine-driver-kvm
 $ sudo mv /tmp/docker-machine-driver-kvm /usr/local/bin/docker-machine-driver-kvm
 ```
-
-**Additional Materials:**
-- CDK installation can be automated by using a script provided by Michael Surbey:
-https://mojo.redhat.com/docs/DOC-1131723
-
-- Cheatsheet of CLI steps provided by Justin Pittman:
-https://mojo.redhat.com/blogs/lilpenguin/2017/05/25/eat-our-dog-food-cdkv3-on-rhel
 
 
 Install the hypervisor on a Mac
@@ -154,13 +147,6 @@ It demonstrates realtime fleet telematics, package tracking, alerting, and a tel
 ![Dashboard Screenshot](docs/screenshots/fleet.png "Dashboard Screenshot")
 ![Dashboard Screenshot](docs/screenshots/exec.png "Exec Dashboard Screenshot")
 
-
-The demo deploys as an Angular.js app running on a Node.js runtime, along with JBoss Data Grid and a Data Grid
-proxy component that properly handles browser-based REST requests and relays to JBoss Data Grid via the Hotrod
-protocol.
-
-Eclipse Kapua is also deployed and acts as the IoT cloud management layer.
-
 Once everything is up and running, you can access the demo using the URL of the `dashboard` route,
 for example `http://dashboard-redhat-iot.domain`
 
@@ -211,5 +197,9 @@ etc.
 
 Troubleshooting
 ---------------
+**Missing Telemetry data**
 
-
+If the telemetry data is not showing up then the dashboard app will need to be rebuilt on your local instances with the following command:
+```
+oc start-build dashboard —follow
+```
