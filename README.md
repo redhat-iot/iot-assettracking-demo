@@ -38,9 +38,9 @@ Depending on your host OS, you have the choice of the following hypervisors:
 - KVM (default)
 - VirtualBox
 
-*Note: You'll also need a Red Hat account or a Red Hat Developer account.*
+***Note: You'll also need a RHN account or a Red Hat Developer account.***
 
-Install the hypervisor on the RHEL System
+Install the hypervisor on RHEL
 ------------------------------------------
 
 Install libvirt and qemu-kvm
@@ -72,41 +72,56 @@ $ chmod +x /tmp/docker-machine-driver-kvm
 $ sudo mv /tmp/docker-machine-driver-kvm /usr/local/bin/docker-machine-driver-kvm
 ```
 
-RHEL Install References
-The above steps can also be run as a script provided by Michael Surbey:
+**Additional Materials:**
+- CDK installation can be automated by using a script provided by Michael Surbey:
 https://mojo.redhat.com/docs/DOC-1131723
-Or as a cheatsheet of CLI steps provided by Justin Pittman:
+
+- Cheatsheet of CLI steps provided by Justin Pittman:
 https://mojo.redhat.com/blogs/lilpenguin/2017/05/25/eat-our-dog-food-cdkv3-on-rhel
 
 
-
 Install the hypervisor on a Mac
-Minishift is currently tested against docker-machine-driver-xhyve.
-Install the latest version of the driver with brew:
-$ brew install docker-machine-driver-xhyve
+-------------------------------
 
-# docker-machine-driver-xhyve need root owner and uid
+Install the latest version of the driver with brew:
+
+```
+$ brew install docker-machine-driver-xhyve
+```
+
+*docker-machine-driver-xhyve need root owner and uid*
+```
 $ sudo chown root:wheel $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
 $ sudo chmod u+s $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
 https://github.com/zchee/docker-machine-driver-xhyve#install
+```
 
 Download & Install Minishift
+----------------------------
+
 Download CDK 3.0
+```
 $ sudo mv ./cdk-3.0.minishift-* /usr/bin/minishift 
 $ sudo chmod +x /usr/bin/minishift
 $ minishift setup-cdk
+```
 
 Configure Minishift
+```
 $ minishift config set memory 9176
 $ minishift config set cpus 4
+```
 
 Start Minishift 
+```
 $ minishift --username=<Red Hat username> --password=<Red Hat password> start
+```
 Please use the username and password associated with your RHN Account
 
 To use a specific hypervisor, use the switch --vm-driver e.g. 
+```
 $ minishift --username=<Red Hat username> --password=<Red Hat password> --vm-driver=xhyve start
-
+```
 
 Set up the Demo
 Once OpenShift is installed and running, follow the instructions on the github to set up the IoT demo (as shown below).
