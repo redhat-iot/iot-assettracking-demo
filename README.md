@@ -137,6 +137,7 @@ Add imagestream definitions for wildfly and jboss-datagrid
 $ oc login -u system:admin
 $ oc create -n openshift -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/jboss-image-streams.json
 $ oc create -n openshift -f https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json
+oc start-build dashboard --follow
 ```
 
 This is an example IoT demo showing a realtime updating dashboard of data streaming from an
