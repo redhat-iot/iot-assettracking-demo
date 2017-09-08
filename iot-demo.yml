@@ -842,7 +842,7 @@ objects:
           - name: REST_SECURITY_DOMAIN
           - name: JGROUPS_CLUSTER_PASSWORD
             value: ${JGROUPS_CLUSTER_PASSWORD}
-          image: registry.access.redhat.com/jboss-datagrid-6/datagrid65-openshift:1.2
+          image: registry.access.redhat.com/jboss-datagrid-6/datagrid65-openshift:1.4
           imagePullPolicy: Always
           name: datastore
           ports:
@@ -876,7 +876,7 @@ objects:
         - datastore
         from:
           kind: ImageStreamTag
-          name: jboss-datagrid65-openshift:1.2
+          name: jboss-datagrid65-openshift:1.4
           namespace: openshift
       type: ImageChange
     - type: ConfigChange
